@@ -1,0 +1,310 @@
+/*-- scss:defaults --*/
+$font-family-sans-serif: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+$font-family-monospace: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+$font-family-serif-body: "Source Serif 4", "Source Serif Pro", Georgia, Cambria, "Times New Roman", serif;
+$font-family-base: $font-family-serif-body;
+$headings-font-family: $font-family-sans-serif;
+$headings-font-weight: 600;
+$headings-line-height: 1.2;
+$font-size-base: 1.06rem;
+$line-height-base: 1.72;
+$border-radius: 0.5rem;
+$border-radius-lg: 0.75rem;
+
+/*-- scss:rules --*/
+
+/* ------------------------------------------------------------------
+   All colours below come from the --lab-* tokens defined in
+   theme-light.scss and theme-dark.scss, so every rule works in both.
+   ------------------------------------------------------------------ */
+
+body { background: var(--lab-bg); color: var(--lab-text); }
+
+/* ---------- Typography ---------- */
+#quarto-document-content h1.title,
+.quarto-title h1.title {
+  font-size: 2.3rem;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.25rem;
+}
+.quarto-title .subtitle { color: var(--lab-muted); font-family: var(--bs-font-sans-serif); }
+
+#quarto-document-content h2 {
+  font-size: 1.65rem;
+  margin-top: 3rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--lab-border);
+  letter-spacing: -0.01em;
+}
+#quarto-document-content h3 { font-size: 1.25rem; margin-top: 2.2rem; }
+#quarto-document-content h4 { font-size: 1.05rem; margin-top: 1.6rem; }
+
+#quarto-document-content a { text-underline-offset: 0.18em; }
+
+#quarto-document-content :not(pre) > code {
+  background: var(--lab-surface-2);
+  color: var(--lab-text);
+  border: 1px solid var(--lab-border);
+  border-radius: 0.3rem;
+  padding: 0.05em 0.35em;
+  font-size: 0.86em;
+}
+
+#quarto-document-content hr { border-color: var(--lab-border); opacity: 1; }
+
+/* ---------- Navigation ---------- */
+.navbar { border-bottom: 1px solid var(--lab-border); }
+.navbar-brand .navbar-title { font-family: var(--bs-font-sans-serif); font-weight: 600; }
+#quarto-sidebar .sidebar-link,
+#quarto-sidebar .sidebar-item-text { font-family: var(--bs-font-sans-serif); font-size: 0.93rem; }
+#quarto-sidebar .sidebar-link.active { color: var(--lab-accent); font-weight: 600; }
+#TOC .nav-link { font-family: var(--bs-font-sans-serif); font-size: 0.86rem; }
+#TOC .nav-link.active { color: var(--lab-accent); border-left-color: var(--lab-accent); }
+.nav-footer { border-top: 1px solid var(--lab-border); }
+.nav-page .pagination-link { font-family: var(--bs-font-sans-serif); }
+
+/* ---------- Callouts (native Quarto callouts, simple appearance) ---------- */
+/* Mapping: Key Concept = callout-note, Remember = callout-tip, Important Note = callout-important,
+   Technical Detail = callout-caution, Example = callout-warning. See README. */
+div.callout.callout-style-simple {
+  background: var(--lab-surface);
+  border: 1px solid var(--lab-border);
+  border-left-width: 4px;
+  border-radius: 0.5rem;
+  padding: 0.7rem 1rem;
+  margin: 1.5rem 0;
+}
+div.callout.callout-style-simple .callout-title-container {
+  font-family: var(--bs-font-sans-serif);
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 0.25rem;
+}
+div.callout.callout-style-simple .callout-body-container { font-size: 0.98rem; }
+div.callout.callout-style-simple .callout-body-container > :last-child { margin-bottom: 0; }
+div.callout.callout-style-simple.callout-note      { border-left-color: var(--lab-c-concept) !important; }
+div.callout.callout-style-simple.callout-tip       { border-left-color: var(--lab-c-remember) !important; }
+div.callout.callout-style-simple.callout-important { border-left-color: var(--lab-c-important) !important; }
+div.callout.callout-style-simple.callout-caution   { border-left-color: var(--lab-c-detail) !important; }
+div.callout.callout-style-simple.callout-warning   { border-left-color: var(--lab-c-example) !important; }
+div.callout.callout-style-simple.callout-note .callout-title-container      { color: var(--lab-c-concept); }
+div.callout.callout-style-simple.callout-tip .callout-title-container       { color: var(--lab-c-remember); }
+div.callout.callout-style-simple.callout-important .callout-title-container { color: var(--lab-c-important); }
+div.callout.callout-style-simple.callout-caution .callout-title-container   { color: var(--lab-c-detail); }
+div.callout.callout-style-simple.callout-warning .callout-title-container   { color: var(--lab-c-example); }
+
+/* Learning objectives: a quiet rule, not a card */
+.lab-objectives {
+  border-left: 3px solid var(--lab-accent);
+  padding: 0.2rem 0 0.2rem 1.1rem;
+  margin: 1.5rem 0 2rem;
+}
+.lab-objectives > p:first-child {
+  font-family: var(--bs-font-sans-serif);
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+}
+.lab-objectives ul { margin-bottom: 0; }
+
+/* ---------- Code blocks ---------- */
+#quarto-document-content div.sourceCode {
+  background: var(--lab-code-bg) !important;
+  border: 1px solid var(--lab-border);
+  border-radius: 0.6rem;
+  margin: 1rem 0;
+}
+#quarto-document-content div.sourceCode pre,
+#quarto-document-content pre.sourceCode {
+  background: transparent !important;
+  border: 0;
+  margin: 0;
+  padding: 0.9rem 1.1rem;
+}
+#quarto-document-content pre code,
+#quarto-document-content pre.sourceCode code {
+  font-family: var(--bs-font-monospace);
+  font-size: 0.86rem;
+  line-height: 1.65;
+}
+#quarto-document-content pre.sourceCode { overflow-x: auto; }
+
+/* ---------- Example / code placeholders ---------- */
+.lab-example {
+  border: 1px solid var(--lab-border);
+  border-radius: 0.75rem;
+  background: var(--lab-surface);
+  margin: 1.75rem 0;
+  overflow: hidden;
+}
+.lab-example-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.75rem;
+  padding: 0.7rem 1.25rem;
+  border-bottom: 1px solid var(--lab-border);
+  font-family: var(--bs-font-sans-serif);
+  font-weight: 600;
+}
+.lab-example-head p { margin: 0; }
+.lab-example-id { color: var(--lab-accent); white-space: nowrap; }
+.lab-example > p {
+  margin: 0.9rem 1.25rem 0.2rem;
+  color: var(--lab-muted);
+  font-size: 0.95rem;
+}
+.lab-example .lab-code-label {
+  display: block;
+  margin: 0.9rem 1.25rem 0;
+  font-family: var(--bs-font-sans-serif);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--lab-muted);
+}
+.lab-example > div.sourceCode,
+.lab-example .code-copy-outer-scaffold { margin: 0.7rem 1.25rem 1.25rem; }
+.lab-example .code-copy-outer-scaffold > div.sourceCode { margin: 0; }
+.lab-example div.sourceCode { border-radius: 0.5rem; }
+.lab-example pre.sourceCode { padding: 0.7rem 0.95rem; }
+.lab-example pre code { font-size: 0.82rem; line-height: 1.6; }
+
+/* ---------- Figures ---------- */
+.lab-figure { margin: 2rem auto; --lab-fig-max: 100%; }
+.lab-figure.lab-figure-sm { --lab-fig-max: 520px; }
+.lab-figure.lab-figure-md { --lab-fig-max: 680px; }
+.lab-figure figure { margin: 0; text-align: center; }
+/* The image always sits on a light surface, so black circuit diagrams stay visible in
+   dark mode. Images are never inverted and no colour filter is applied. */
+.lab-figure img {
+  background: var(--lab-fig-bg);
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--lab-border);
+  border-radius: 0.75rem;
+  box-sizing: border-box;
+  display: inline-block;
+  width: auto;
+  height: auto;
+  max-width: min(100%, var(--lab-fig-max));
+  filter: none;
+  mix-blend-mode: normal;
+}
+.lab-figure figcaption {
+  margin: 0.7rem auto 0;
+  max-width: 640px;
+  font-family: var(--bs-font-sans-serif);
+  font-size: 0.88rem;
+  color: var(--lab-muted);
+  text-align: center;
+}
+
+/* ---------- Tables ---------- */
+#quarto-document-content table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  width: auto;
+  margin: 1.25rem 0;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+#quarto-document-content table > :not(caption) > * > * {
+  background-color: transparent;
+  box-shadow: none;
+  color: var(--lab-text);
+  border-color: var(--lab-border);
+  padding: 0.45rem 0.85rem;
+}
+#quarto-document-content table > thead > tr > th {
+  background-color: var(--lab-surface-2);
+  border-bottom: 2px solid var(--lab-border-strong);
+  font-family: var(--bs-font-sans-serif);
+  font-weight: 600;
+}
+#quarto-document-content table > tbody > tr > td { border-bottom: 1px solid var(--lab-border); }
+
+.lab-table-block { margin: 2rem 0; }
+.lab-table-title {
+  font-family: var(--bs-font-sans-serif);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+.lab-table-title p { margin: 0; }
+.truth-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1rem 0 1.8rem;
+}
+.truth-card {
+  border: 1px solid var(--lab-border);
+  border-radius: 0.7rem;
+  padding: 0.85rem 1rem;
+  min-width: 0;
+  overflow-x: auto;
+}
+.truth-card table { display: table; width: 100%; margin: 0; font-size: 0.9rem; }
+.truth-card td, .truth-card th { text-align: center; font-family: var(--bs-font-monospace); padding: 0.35rem 0.5rem; }
+.truth-card td:first-child, .truth-card th:first-child { font-weight: 600; }
+@media (max-width: 479.98px) { .truth-grid { grid-template-columns: 1fr; } }
+.lab-op-table table td:first-child { font-family: var(--bs-font-monospace); }
+
+/* ---------- Homepage ---------- */
+.lab-hero { padding: 2rem 0 0.5rem; }
+.lab-hero .lab-hero-course {
+  font-family: var(--bs-font-sans-serif);
+  font-weight: 500;
+  color: var(--lab-accent);
+  margin-bottom: 0.4rem;
+}
+.lab-hero h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  margin: 0 0 1rem;
+  border: 0;
+}
+.lab-hero .lab-hero-lead { font-size: 1.15rem; max-width: 34em; }
+.lab-wave {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 1.5rem 0 1.5rem;
+  color: var(--lab-accent);
+}
+.lab-wave path { fill: none; stroke: currentColor; stroke-width: 2; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+.lab-wave .lab-wave-data { opacity: 0.45; }
+
+.lab-chapter { padding: 1rem 0 1.25rem; border-top: 1px solid var(--lab-border); }
+.lab-chapter h3 { margin: 0 0 0.3rem; font-size: 1.25rem; }
+.lab-chapter ul { columns: 2 16rem; margin: 0.5rem 0 0; padding-left: 1.1rem; font-size: 0.97rem; }
+.lab-chapter p { margin-bottom: 0.4rem; }
+
+/* ---------- Tooltips (e.g. "Copied!"): white text on a dark box in both themes ---------- */
+.tippy-box,
+.tippy-box[data-theme~="quarto"],
+.tooltip .tooltip-inner {
+  background-color: #10161c !important;
+  color: #ffffff !important;
+  border: 1px solid #3b4a58 !important;
+  font-family: var(--bs-font-sans-serif);
+}
+.tippy-box *,
+.tippy-box .tippy-content,
+.tooltip .tooltip-inner { color: #ffffff !important; }
+.tippy-box > .tippy-arrow::before { color: #10161c !important; }
+
+/* ---------- Navbar tools: consistent icon size ---------- */
+.quarto-navbar-tools .bi { font-size: 1.2rem; }
+.quarto-color-scheme-toggle .bi::before { width: 1.2rem !important; height: 1.2rem !important; background-size: 1.2rem 1.2rem !important; }
+
+/* ---------- Accessibility ---------- */
+a:focus-visible, button:focus-visible { outline: 2px solid var(--lab-accent); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto !important; } }
+
+/* ---------- Small screens ---------- */
+@media (max-width: 575.98px) {
+  .lab-figure img { padding: 0.6rem; }
+  .lab-example-head { padding: 0.6rem 0.75rem; }
+  .lab-example > p, .lab-example .lab-code-label { margin-left: 0.75rem; margin-right: 0.75rem; }
+  .lab-example > div.sourceCode, .lab-example .code-copy-outer-scaffold { margin-left: 0.75rem; margin-right: 0.75rem; }
+}

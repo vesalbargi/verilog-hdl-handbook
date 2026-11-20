@@ -1,0 +1,34 @@
+/*-- scss:defaults --*/
+$body-bg: #ffffff;
+$body-color: #16222c;
+$primary: #0a6b78;
+$link-color: #0a6b78;
+$headings-color: #0e1a23;
+$code-color: #16222c;
+$code-bg: #eef3f6;
+$navbar-bg: #ffffff;
+$navbar-fg: #16222c;
+$navbar-hl: #0a6b78;
+$footer-bg: #ffffff;
+$toc-color: #0a6b78;
+
+/*-- scss:rules --*/
+:root {
+  color-scheme: light;
+  --lab-bg: #ffffff;
+  --lab-surface: #f4f7f9;
+  --lab-surface-2: #e9eff3;
+  --lab-border: #d5dde3;
+  --lab-border-strong: #aebbc6;
+  --lab-text: #16222c;
+  --lab-muted: #52626f;
+  --lab-accent: #0a6b78;
+  --lab-accent-soft: #e2f0f2;
+  --lab-code-bg: #f5f8fa;
+  --lab-fig-bg: #ffffff;
+  --lab-c-concept: #0a6b78;
+  --lab-c-remember: #2f7d4f;
+  --lab-c-important: #b3402a;
+  --lab-c-detail: #5f4fb0;
+  --lab-c-example: #a65b00;
+}

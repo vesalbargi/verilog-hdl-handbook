@@ -1,0 +1,35 @@
+/*-- scss:defaults --*/
+$body-bg: #0d1720;
+$body-color: #e3ebf1;
+$primary: #58c4d2;
+$link-color: #58c4d2;
+$headings-color: #f1f6fa;
+$code-color: #e3ebf1;
+$code-bg: #17283a;
+$navbar-bg: #0d1720;
+$navbar-fg: #e3ebf1;
+$navbar-hl: #58c4d2;
+$footer-bg: #0d1720;
+$toc-color: #58c4d2;
+
+/*-- scss:rules --*/
+:root {
+  color-scheme: dark;
+  --lab-bg: #0d1720;
+  --lab-surface: #142230;
+  --lab-surface-2: #1b2d3d;
+  --lab-border: #2a3d4e;
+  --lab-border-strong: #44596b;
+  --lab-text: #e3ebf1;
+  --lab-muted: #9db0bf;
+  --lab-accent: #58c4d2;
+  --lab-accent-soft: #12303a;
+  --lab-code-bg: #101d28;
+  /* Circuit diagrams are black on transparent/white: keep them on a light surface in dark mode. */
+  --lab-fig-bg: #ffffff;
+  --lab-c-concept: #58c4d2;
+  --lab-c-remember: #6fcf97;
+  --lab-c-important: #ff8a73;
+  --lab-c-detail: #a99cf0;
+  --lab-c-example: #f0b35a;
+}
