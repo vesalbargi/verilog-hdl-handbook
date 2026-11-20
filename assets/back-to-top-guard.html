@@ -1,0 +1,19 @@
+<script>
+/* Keeps the back-to-top button hidden when the page is scrolled all the way to the bottom
+   (scroll bounce and late layout changes there can look like an upward scroll). */
+(function () {
+  function init() {
+    var btn = document.getElementById("quarto-back-to-top");
+    if (!btn) return;
+    function guard() {
+      requestAnimationFrame(function () {
+        var atBottom = window.innerHeight + window.pageYOffset >= document.documentElement.scrollHeight - 4;
+        if (atBottom) btn.style.display = "none";
+      });
+    }
+    window.addEventListener("scroll", guard, { passive: true });
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+  else init();
+})();
+</script>
