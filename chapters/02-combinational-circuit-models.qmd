@@ -1,0 +1,758 @@
+---
+title: "Chapter 2: HDL Models of Combinational Circuits"
+subtitle: "Computer Architecture Laboratory, LAB3114"
+---
+
+<!--
+  Source: source pages 10-23.
+  Figures: 4.19, 4.5, 4.8, 4.9 (section 2.1), 4.31 and 4.32 (section 2.2). Tables: 4.9 (section 2.1), 4.10 (section 2.3).
+  Code placeholders: 13 examples / 15 code blocks.
+  Instructor-review items for this chapter are listed in instructor-review.md.
+-->
+
+::: {.lab-objectives}
+**Learning objectives**
+
+- Compare the three modeling styles for combinational logic: gate-level, dataflow, and behavioral.
+- Use the four-valued logic system (0, 1, x, z) and read the primitive-gate truth tables.
+- Build a hierarchical design by instantiating modules inside other modules.
+- Model three-state gates and shared (multiple-driver) nets.
+- Write continuous assignments with Verilog operators, including concatenation and the conditional operator.
+- Write simple behavioral models with `always`, `if-else`, and `case`.
+:::
+
+## Modeling styles {#modeling-styles}
+
+<!-- Unnumbered lead-in text that precedes section 2.1 in the source (page 10). -->
+
+The module is the basic building block for modeling hardware in Verilog. The logic of a module can be described in any one of the following styles, or in a combination of them:
+
+| Style | Describes the circuit with | Keyword |
+|:--|:--|:--|
+| Gate-level | Instances of predefined and user-defined primitive gates, and how they connect | gate names such as `and`, `or` |
+| Dataflow | Continuous assignment statements, mostly Boolean equations | `assign` |
+| Behavioral | Procedural assignment statements, at a higher level of abstraction | `always` |
+
+Behavioral modeling can describe both combinational and sequential circuits. A fourth style, **switch-level modeling**, is sometimes used to simulate MOS transistor circuits but not for logic synthesis; it is outside the scope of this chapter. Sequential circuits are presented in [Chapter 3](03-sequential-circuit-models.qmd).
+
+## 2.1 Gate-level Modeling {#gate-level-modeling}
+
+Gate-level modeling gives a **textual description of a schematic diagram**: the circuit is specified by its logic gates and their interconnections.
+
+### Primitive gates
+
+Verilog includes **12 basic gates** as predefined primitives:
+
+- **Eight** ordinary gates: `and`, `nand`, `or`, `nor`, `xor`, `xnor`, `not`, `buf`.
+- **Four** three-state gates (see [2.2](#three-state-gates)).
+
+All are written with lowercase keywords. The gates `and`, `nand`, `or`, `nor`, `xor`, and `xnor` are **n-input** primitives: they can have any number of scalar inputs (for example, a three-input `and`). The `buf` and `not` primitives are **n-output** primitives: a single input can drive several output lines, each with its own identifier.
+
+### Four-valued logic
+
+Each gate has a functional description based on a **four-valued system**. At any instant, the simulator assigns one of these values to a gate output:
+
+| Value | Meaning |
+|:-:|:--|
+| `0` | Logic 0 |
+| `1` | Logic 1 |
+| `x` | Unknown |
+| `z` | High impedance |
+
+- An **unknown** value (`x`) is assigned when a signal's value is ambiguous, for example when it cannot be determined whether it is 0 or 1 (such as a flip-flop without a reset condition).
+- A **high-impedance** value (`z`) occurs at the output of a three-state gate that is not enabled, or on a wire that was left unconnected by mistake.
+
+Table 4.9 gives the four-valued truth tables for `and`, `or`, `xor`, and `not`. The truth table for the other four gates is the same, except that the outputs are complemented.
+
+::: {.lab-table-block}
+::: {.lab-table-title}
+Table 4.9: Truth Tables for Predefined Primitive Gates
+:::
+
+::: {.truth-grid}
+::: {.truth-card}
+**AND**
+
+|   | 0 | 1 | x | z |
+|:-:|:-:|:-:|:-:|:-:|
+| 0 | 0 | 0 | 0 | 0 |
+| 1 | 0 | 1 | x | x |
+| x | 0 | x | x | x |
+| z | 0 | x | x | x |
+
+:::
+
+::: {.truth-card}
+**OR**
+
+|   | 0 | 1 | x | z |
+|:-:|:-:|:-:|:-:|:-:|
+| 0 | 0 | 1 | x | x |
+| 1 | 1 | 1 | 1 | 1 |
+| x | x | 1 | x | x |
+| z | x | 1 | x | x |
+
+:::
+
+::: {.truth-card}
+**XOR**
+
+|   | 0 | 1 | x | z |
+|:-:|:-:|:-:|:-:|:-:|
+| 0 | 0 | 1 | x | x |
+| 1 | 1 | 0 | x | x |
+| x | x | x | x | x |
+| z | x | x | x | x |
+
+:::
+
+::: {.truth-card}
+**NOT**
+
+| Input | Output |
+|:-:|:-:|
+| 0 | 1 |
+| 1 | 0 |
+| x | x |
+| z | x |
+
+:::
+:::
+:::
+
+::: {.callout-tip}
+## Remember: Reading the AND and OR tables
+
+- **AND:** the output is 1 only when both inputs are 1. It is 0 if *any* input is 0. Otherwise (an input is `x` or `z`), it is `x`.
+- **OR:** the output is 0 only when both inputs are 0. It is 1 if *any* input is 1. Otherwise, it is `x`.
+:::
+
+### Instantiating primitives
+
+When a primitive gate is listed in a module, it is **instantiated** in that module. In general, component instantiations are statements that reference lower-level components, creating unique copies (instances) of them in the higher-level module. Think of instantiation as the HDL counterpart of **placing and connecting parts on a circuit board**.
+
+### Vectors
+
+Identifiers with several bits are called **vectors**. A vector is declared with a range in square brackets: two numbers separated by a colon.
+
+::: {.lab-example}
+::: {.lab-example-head}
+Vector declarations
+:::
+
+Declares a four-bit output vector `D` (bits 0 through 3) and an eight-bit wire vector `SUM` (bits 7 through 0).
+
+```verilog
+output [0:3] D;
+wire [7:0] SUM;
+```
+:::
+
+- The **leftmost number in the range is always the most significant bit** of the vector.
+- A single bit is selected with square brackets: `D[2]` is bit 2 of `D`.
+- A contiguous part of a vector can be selected too: `SUM[2:0]` is the three least significant bits of `SUM`.
+
+### Example: two-to-four-line decoder
+
+Figure 4.19 shows the circuit modeled in Example 4.1.
+
+::: {.lab-figure .lab-figure-md}
+![**Figure 4.19.** Two-to-four-line decoder with enable input](../figures/figure-4.19.png){fig-alt="Logic diagram of a two-to-four-line decoder with data inputs A and B, an enable input, and four outputs."}
+:::
+
+::: {.lab-example}
+::: {.lab-example-head}
+[HDL Example 4.1]{.lab-example-id} Gate-level two-to-four-line decoder
+:::
+
+Uses three `not` gates and four `nand` gates to build a decoder with data inputs A and B, an enable input, and a four-bit output vector D.
+
+```verilog
+// HDL Example 4.1
+// Gate-level description of two-to-four-line decoder
+// Refer to Fig. 4.19 with symbol E replaced by enable, for clarity.
+module decoder_2x4_gates (D, A, B, enable);
+  output [0:3] D;
+  input        A, B;
+  input        enable;
+  wire         A_not, B_not, enable_not;
+
+  not
+    G1 (A_not, A),
+    G2 (B_not, B),
+    G3 (enable_not, enable);
+  nand
+    G4 (D[0], A_not, B_not, enable_not),
+    G5 (D[1], A_not, B,     enable_not),
+    G6 (D[2], A,     B_not, enable_not),
+    G7 (D[3], A,     B,     enable_not);
+endmodule
+```
+:::
+
+The decoder has two data inputs, **A** and **B**, and an **enable** input. The four outputs form the vector **D**. Internal connections are declared as wires. Three `not` gates produce the complements of the inputs, and four `nand` gates produce the outputs.
+
+::: {.callout-important}
+## Important Note: Listing several gates of one type
+
+The keywords `not` and `nand` are written **once** and are not repeated for each gate. Put a comma at the end of each gate in the series and end the **last** one with a semicolon. Remember that the output is always listed first in a primitive's port list.
+:::
+
+### Hierarchical design: ripple-carry adder
+
+Two or more modules can be combined into a **hierarchical** description. There are two basic design methodologies:
+
+| Methodology | Order of work |
+|:--|:--|
+| **Top-down** | Define the top-level block first, then identify the sub-blocks needed to build it. |
+| **Bottom-up** | Identify the building blocks first, then combine them into the top-level block. |
+
+Consider the four-bit binary adder. It is a top-level block built from four **full adders**, and each full adder is built from two **half adders** (plus some glue logic). A top-down design defines the four-bit adder first, then the full adders, then the half adders. A bottom-up design defines the half adder first, then the full adder, then the four-bit adder.
+
+HDL Example 4.2 is a **bottom-up** description:
+
+1. The **half adder** is defined by instantiating primitive gates.
+2. The **full adder** instantiates two half adders.
+3. The **four-bit adder** instantiates four full adders.
+
+Figures 4.5, 4.8, and 4.9 show these three levels of the design.
+
+::: {.lab-figure .lab-figure-sm}
+![**Figure 4.5.** Implementation of half adder](../figures/figure-4.5.png){fig-alt="Logic diagram of a half adder."}
+:::
+
+::: {.lab-figure .lab-figure-md}
+![**Figure 4.8.** Implementation of full adder with two half adders and an OR gate](../figures/figure-4.8.png){fig-alt="Logic diagram of a full adder built from two half adders and an OR gate."}
+:::
+
+::: {.lab-figure .lab-figure-md}
+![**Figure 4.9.** Four-bit adder](../figures/figure-4.9.png){fig-alt="Block diagram of a four-bit adder built from four full adders connected in a carry chain."}
+:::
+
+::: {.lab-example}
+::: {.lab-example-head}
+[HDL Example 4.2]{.lab-example-id} Gate-level four-bit ripple-carry adder
+:::
+
+Builds the adder bottom-up from three modules: a half adder, a full adder, and the four-bit ripple-carry adder.
+
+[Module `half_adder`]{.lab-code-label}
+
+```verilog
+// HDL Example 4.2
+// Gate-level description of four-bit ripple carry adder
+// Description of half adder (Fig. 4.5b)
+// Verilog 1995 syntax:
+//   module half_adder (S, C, x, y);
+//   output S, C;
+//   input  x, y;
+// Verilog 2001, 2005 syntax:
+module half_adder (output S, C, input x, y);
+  // Instantiate primitive gates
+  xor (S, x, y);
+  and (C, x, y);
+endmodule
+```
+
+[Module `full_adder`]{.lab-code-label}
+
+```verilog
+// Description of full adder (Fig. 4.8)
+// Verilog 1995 syntax:
+//   module full_adder (S, C, x, y, z);
+//   output S, C;
+//   input  x, y, z;
+// Verilog 2001, 2005 syntax:
+module full_adder (output S, C, input x, y, z);
+  wire S1, C1, C2;
+
+  // Instantiate half adders
+  half_adder HA1 (S1, C1, x, y);
+  half_adder HA2 (S, C2, S1, z);
+  or         G1  (C, C2, C1);
+endmodule
+```
+
+[Four-bit ripple-carry adder module]{.lab-code-label}
+
+```verilog
+// Description of four-bit adder (Fig. 4.9)
+// Verilog 1995 syntax:
+//   module ripple_carry_4_bit_adder (Sum, C4, A, B, C0);
+//   output [3:0] Sum;
+//   output       C4;
+//   input  [3:0] A, B;
+//   input        C0;
+// Alternative Verilog 2001, 2005 syntax:
+module ripple_carry_4_bit_adder (output [3:0] Sum, output C4, input [3:0] A, B, input C0);
+  wire C1, C2, C3;   // Intermediate carries
+
+  // Instantiate chain of full adders
+  full_adder FA0 (Sum[0], C1, A[0], B[0], C0),
+             FA1 (Sum[1], C2, A[1], B[1], C1),
+             FA2 (Sum[2], C3, A[2], B[2], C2),
+             FA3 (Sum[3], C4, A[3], B[3], C3);
+endmodule
+```
+:::
+
+**Instantiation syntax.** A module is instantiated by writing the name of the module followed by an instance name and a (new or the same) set of port names. For example, the half adder instance `HA1` inside the full adder is connected to `S1`, `C1`, `x`, and `y`, which produces a half adder with outputs `S1` and `C1` and inputs `x` and `y`.
+
+**Identifier rule.** The first character of an identifier cannot be a digit, but it can be an underscore, so the module name `_4bitadder` is valid. A meaningful alternative that needs no leading underscore is `adder_4_bit`.
+
+**Port-declaration syntax.** Example 4.2 uses the Verilog 2001/2005 style, which declares the port mode (`output`), type (`reg`), and vector range (`[3:0]`) in the module header. The 1995 standard uses separate statements for these.
+
+| | Verilog 1995 | Verilog 2001, 2005 |
+|:--|:--|:--|
+| Port declarations | Separate `input` / `output` statements after the module header | Mode, type, and range inside the header's port list |
+| Typing effort | More | Less (no repeated identifiers) |
+
+::: {.callout-important}
+## Important Note: Nesting rules
+
+- Modules can be **instantiated** (nested) inside other modules.
+- Module **declarations** cannot be nested: a `module` ... `endmodule` definition cannot be placed between the `module` and `endmodule` keywords of another module. The only way to use one module inside another is to instantiate it.
+- **Instance names are required** when instantiating modules (such as `FA0`), but **optional** for primitive gates.
+:::
+
+::: {.callout-note}
+## Key Concept: Structural description and hierarchy
+
+A module is a **structural description** if it is composed of instantiations of other modules. Instantiating modules within other modules creates a **hierarchical decomposition** of the design.
+
+In the adder, the top level (parent) is the four-bit adder. The four full adders are its **child** modules, and so on. `C0` is an input of the cell forming the least significant bit of the chain; `C4` is the output of the cell forming the most significant bit.
+:::
+
+## 2.2 Three-State Gates {#three-state-gates}
+
+A **three-state gate** has a control input that can place the gate in a **high-impedance** state, written `z` in Verilog. There are four types, shown in Figure 4.31.
+
+::: {.lab-figure .lab-figure-md}
+![**Figure 4.31.** Three-state gates](../figures/figure-4.31.png){fig-alt="Four gate symbols, each with an input labeled in, a control input, and an output labeled out. The top two are buffers labeled bufif1 and bufif0; the bottom two are inverters labeled notif1 and notif0. The control input of the bufif0 and notif0 symbols has an inversion bubble."}
+:::
+
+| Gate | Control value that enables it | Output when enabled | Output when not enabled |
+|:--|:-:|:--|:-:|
+| `bufif1` | 1 | input (like a normal buffer) | `z` |
+| `bufif0` | 0 | input (like a normal buffer) | `z` |
+| `notif1` | 1 | complement of the input | `z` |
+| `notif0` | 0 | complement of the input | `z` |
+
+Three-state gates are instantiated with the form *gate name (output, input, control)*. In simulation the output can be 0, 1, `x`, or `z`.
+
+::: {.lab-example}
+::: {.lab-example-head}
+Three-state gate instantiations
+:::
+
+Shows one `bufif1` instance and one `notif0` instance.
+
+```verilog
+bufif1 (OUT, A, control);
+notif0 (Y, B, enable);
+```
+:::
+
+- In the first instance, input `A` is transferred to `OUT` when `control = 1`; `OUT` goes to `z` when `control = 0`.
+- In the second instance, output `Y = z` when `enable = 1`, and `Y = B'` (the complement of `B`) when `enable = 0`.
+
+### Several drivers on one line
+
+The outputs of several three-state gates can be tied together to form a common output line. To mark such a connection, Verilog uses the keyword **`tri`** (for *tri-state*), which indicates that the net has **multiple drivers**. Figure 4.32 is a two-to-one-line multiplexer built from three-state buffers; its output must be declared with the `tri` data type.
+
+::: {.lab-figure .lab-figure-sm}
+![**Figure 4.32.** Two-to-one-line multiplexer with three-state buffers](../figures/figure-4.32.png){fig-alt="Two three-state buffers. Input A feeds the upper buffer and input B feeds the lower buffer, which has an inverting control input. The select signal drives both control inputs, and the two buffer outputs are joined into a single output line labeled m_out."}
+:::
+
+::: {.lab-example}
+::: {.lab-example-head}
+Multiplexer with three-state output
+:::
+
+Describes the multiplexer of Figure 4.32 with a `bufif1` and a `bufif0` driving the same `tri` output.
+
+```verilog
+// Mux with three-state output
+module mux_tri (m_out, A, B, select);
+  output m_out;
+  input A, B, select;
+  tri m_out;
+  bufif1 (m_out, A, select);
+  bufif0 (m_out, B, select);
+endmodule
+```
+:::
+
+The two three-state buffers drive the same output. To show that they share one connection, `m_out` must be declared with the keyword `tri`.
+
+### Nets
+
+`wire` and `tri` are examples of a class of data types called **nets**, which represent connections between hardware elements. In simulation, a net's value is determined by a continuous assignment or by the device whose output it represents. The word *net* is not a keyword; it names the class.
+
+| Net type | Models |
+|:--|:--|
+| `wire` | An ordinary connection. The most frequently used net. |
+| `tri` | A connection with multiple three-state drivers. |
+| `wor` | The wired-OR configuration (emitter-coupled logic). |
+| `wand` | The wired-AND configuration (open-collector technology). |
+| `supply1` | Power supply; hardwires an input to 1. |
+| `supply0` | Ground; hardwires an input to 0. |
+
+According to the language rules, an identifier that is used but not declared is interpreted by default as a `wire`.
+
+<!-- TODO(instructor): the implicit-wire rule applies only in specific contexts (for example, terminals of gate/module instances and continuous-assignment targets). Consider tightening this sentence. -->
+
+## 2.3 Dataflow Modeling {#dataflow-modeling}
+
+Dataflow modeling describes combinational logic with **operators** that act on **operands**. Verilog provides about 30 operators; Table 4.10 lists some of them. (The complete list for Verilog 2001 and 2005 is in Table 8.1, Section 8.2.)
+
+::: {.lab-table-block}
+::: {.lab-table-title}
+Table 4.10: Some Verilog HDL Operators
+:::
+
+::: {.lab-op-table}
+<!-- Escaping note: the OR symbol is written with the HTML entity &#124; because a literal pipe would be read as a table-column separator. -->
+
+| Symbol | Operation |
+|:-:|:--|
+| `+` | Binary addition |
+| `-` | Binary subtraction |
+| `&` | Bitwise AND |
+| <code>&#124;</code> | Bitwise OR |
+| `^` | Bitwise XOR |
+| `~` | Bitwise NOT |
+| `==` | Equality |
+| `>` | Greater than |
+| `<` | Less than |
+| `{ }` | Concatenation |
+| `?:` | Conditional |
+
+:::
+:::
+
+Notes on the operators:
+
+- Arithmetic and logic operations use **different symbols**: `+` is arithmetic addition, while `&` is the bitwise logic AND. There are separate symbols for bitwise OR, NOT, and XOR.
+- The **equality** operator uses two equals signs (`==`, with no space between them) to distinguish it from the single `=` used in the `assign` statement.
+- **Bitwise operators** work bit by bit on a pair of vector operands.
+- **Concatenation** appends several operands. For example, two 2-bit operands can be concatenated into one 4-bit operand.
+- The **conditional** operator acts like a multiplexer (see Example 4.6 below).
+
+### Continuous assignments and nets
+
+Dataflow modeling uses **continuous assignments** and the keyword `assign`. A continuous assignment assigns a value to a **net**. The net data types represent a physical connection between circuit elements.
+
+- A net is declared explicitly with a net keyword (for example, `wire`) or by declaring an identifier to be an output port.
+- The logic value of a net is determined by what the net is connected to. If it is connected to a gate output, the net is said to be **driven** by the gate, and its value follows from the gate's input values and truth table.
+- If the net is the left-hand side of a continuous assignment, its value is given by an expression made of operands and operators.
+
+<!-- TODO(instructor): the source text also lists the left-hand side of a "procedural assignment" as a net. In Verilog, procedural assignments target reg variables, not nets. This handbook keeps only the continuous-assignment case. -->
+
+For example, a two-line multiplexer with data inputs A and B, select input S, and output Y can be described with one continuous assignment (assuming the variables were declared):
+
+::: {.lab-example}
+::: {.lab-example-head}
+Multiplexer as one continuous assignment
+:::
+
+Relates output Y to inputs A, B, and S with one `assign` statement and a Boolean expression.
+
+```verilog
+assign Y = (A & S) | (B & ~S);
+```
+:::
+
+The relationship between Y, A, B, and S is declared by `assign`, followed by the target output Y, an equals sign, and a Boolean expression. In hardware terms, the assignment is equivalent to connecting the output of the OR gate to wire Y.
+
+### Dataflow versions of earlier examples
+
+The next two examples are dataflow models of the two earlier gate-level examples.
+
+::: {.lab-example}
+::: {.lab-example-head}
+[HDL Example 4.3]{.lab-example-id} Dataflow two-to-four-line decoder
+:::
+
+Uses four continuous assignment statements with Boolean expressions, one per output.
+
+```verilog
+// HDL Example 4.3
+// Dataflow description of two-to-four-line decoder
+// See Fig. 4.19. Note: The figure uses symbol E, but the
+// Verilog model uses enable to clearly indicate functionality.
+module decoder_2x4_df (   // Verilog 2001, 2005 syntax
+  output [0:3] D,
+  input        A, B, enable
+);
+  assign D[0] = ~(~A & ~B & ~enable),
+         D[1] = ~(~A &  B & ~enable),
+         D[2] = ~( A & ~B & ~enable),
+         D[3] = ~( A &  B & ~enable);
+endmodule
+```
+:::
+
+::: {.lab-example}
+::: {.lab-example-head}
+[HDL Example 4.4]{.lab-example-id} Dataflow four-bit adder
+:::
+
+Describes the whole adder with one statement that combines addition and concatenation.
+
+```verilog
+// HDL Example 4.4
+// Dataflow description of four-bit adder
+// Verilog 2001, 2005 module port syntax
+module binary_adder (
+  output [3:0] Sum,
+  output       C_out,
+  input  [3:0] A, B,
+  input        C_in
+);
+  assign {C_out, Sum} = A + B + C_in;
+endmodule
+```
+:::
+
+In Example 4.4, the plus symbol (`+`) adds the four bits of **A**, the four bits of **B**, and the one bit **C_in**. The target is the **concatenation** of the output carry **C_out** and the four bits of **Sum**. Concatenation is written inside braces with commas between the operands, so `{C_out, Sum}` is the five-bit result of the addition.
+
+### Comparator and multiplexer
+
+Dataflow models describe circuits **by their function rather than by their gate structure**. This makes design easier, as the comparator shows.
+
+::: {.lab-example}
+::: {.lab-example-head}
+[HDL Example 4.5]{.lab-example-id} Dataflow four-bit magnitude comparator
+:::
+
+Defines three outputs (less than, greater than, equal) from two four-bit inputs using comparison operators.
+
+```verilog
+// HDL Example 4.5
+// Dataflow description of a four-bit comparator
+module mag_compare (output A_lt_B, A_eq_B, A_gt_B, input [3:0] A, B);
+  assign A_lt_B = (A < B);
+  assign A_gt_B = (A > B);
+  assign A_eq_B = (A == B);
+endmodule
+```
+:::
+
+The module has two 4-bit inputs, **A** and **B**, and three outputs:
+
+- `A_lt_B` is 1 if A is less than B,
+- `A_gt_B` is 1 if A is greater than B,
+- `A_eq_B` is 1 if A is equal to B.
+
+Equality is written with two equals signs (`==`) to distinguish it from the assignment operator (`=`). A Verilog synthesis compiler can accept this module as input, run synthesis algorithms, and produce a netlist and a schematic of an equivalent circuit **without manual intervention**.
+
+::: {.callout-note}
+## Key Concept: The conditional operator
+
+The conditional operator `? :` takes three operands: *condition ? true-expression : false-expression*.
+
+The condition is evaluated. If the result is logic 1, the true expression is evaluated; if it is logic 0, the false expression is evaluated. Together they are equivalent to an `if-else` condition.
+:::
+
+::: {.lab-example}
+::: {.lab-example-head}
+[HDL Example 4.6]{.lab-example-id} Dataflow two-to-one-line multiplexer
+:::
+
+Uses the conditional operator in a continuous assignment: the output is A if `select = 1`, otherwise B.
+
+```verilog
+// HDL Example 4.6
+// Dataflow description of two-to-one-line multiplexer
+module mux_2x1_df (m_out, A, B, select);
+  output m_out;
+  input  A, B;
+  input  select;
+
+  assign m_out = (select) ? A : B;
+endmodule
+```
+:::
+
+## 2.4 Behavioral Modeling {#behavioral-modeling}
+
+Behavioral modeling represents digital circuits at a **functional and algorithmic level**. It is used mostly to describe sequential circuits but can also describe combinational ones. Two simple combinational examples introduce it here; behavioral modeling is covered in more detail in [Chapter 3](03-sequential-circuit-models.qmd), after the study of sequential circuits.
+
+A behavioral description uses the keyword **`always`**, followed by an optional **event control expression** and a list of **procedural assignment statements**. The event control expression says when the statements execute.
+
+::: {.callout-important}
+## Important Note: Targets must be `reg`
+
+The target of a procedural assignment must be of the **`reg`** data type. A `reg` keeps its value until a new value is assigned to it (in contrast to a net, which is continuously driven).
+:::
+
+### Two-to-one-line multiplexer
+
+::: {.lab-example}
+::: {.lab-example-head}
+[HDL Example 4.7]{.lab-example-id} Behavioral two-to-one-line multiplexer
+:::
+
+Uses an `always` block with an `if-else` statement (compare with Example 4.6).
+
+```verilog
+// HDL Example 4.7
+// Behavioral description of two-to-one-line multiplexer
+module mux_2x1_beh (m_out, A, B, select);
+  output m_out;
+  input  A, B, select;
+  reg    m_out;
+
+  always @(A or B or select)
+    if (select == 1) m_out = A;
+    else             m_out = B;
+endmodule
+```
+:::
+
+- Because `m_out` is a target output, it must be declared as `reg`, **in addition to** its `output` declaration.
+- The statements in the `always` block run **every time any variable listed after the `@` symbol changes**: here `A`, `B`, or `select`.
+- There is **no semicolon** at the end of the `always` statement.
+- The keyword `or` (not the bitwise operator `|`) separates the variables in the list.
+- The `if-else` statement chooses based on the value of `select`.
+
+The `if` statement can be written without the equality symbol; this form checks whether `select` is logic 1:
+
+::: {.lab-example}
+::: {.lab-example-head}
+Shorthand `if` test
+:::
+
+Shows an `if` that tests `select` for logic 1 without writing `== 1`.
+
+```verilog
+if (select) m_out = A;
+```
+:::
+
+### Four-to-one-line multiplexer
+
+::: {.lab-example}
+::: {.lab-example-head}
+[HDL Example 4.8]{.lab-example-id} Behavioral four-to-one-line multiplexer
+:::
+
+Uses a `case` statement on a two-bit `select` vector to choose one of four inputs.
+
+```verilog
+// HDL Example 4.8
+// Behavioral description of four-to-one-line multiplexer
+// Verilog 2001, 2005 port syntax
+module mux_4x1_beh (output reg m_out, input in_0, in_1, in_2, in_3, input [1:0] select);
+  always @(in_0, in_1, in_2, in_3, select)   // Verilog 2001, 2005 syntax
+    case (select)
+      2'b00: m_out = in_0;
+      2'b01: m_out = in_1;
+      2'b10: m_out = in_2;
+      2'b11: m_out = in_3;
+    endcase
+endmodule
+```
+:::
+
+The `select` input is a two-bit vector and the output is declared `reg`. The `always` statement contains a sequential block enclosed by `case` and `endcase`. The block runs whenever any input in the list changes value.
+
+`case` is a **multiway conditional branch**. When an input or `select` changes:
+
+1. The case expression (`select`) is evaluated.
+2. Its value is compared, **from top to bottom**, with the **case items**.
+3. The statement of the **first** matching case item is executed.
+4. If there is no match, no statement is executed.
+
+`select` is a two-bit number, so it can be 00, 01, 10, or 11. The case items have an **implied priority** because the list is evaluated from top to bottom.
+
+::: {.callout-note}
+## Key Concept: Sensitivity list
+
+The list after the `@` symbol is called a **sensitivity list** (Verilog 2001, 2005). It is equivalent to the **event control expression** of Verilog 1995, formed by "ORing" the signals.
+
+| Verilog 1995 | Verilog 2001, 2005 |
+|:--|:--|
+| Signals separated by the keyword `or` | Signals separated by commas |
+
+:::
+
+### Implicit sensitivity list
+
+A sensitivity list is only useful if it is complete, and in a large design it is easy to forget a signal. Verilog 2001 therefore lets you write `@*` or `@(*)` **without a list**: the block is then sensitive to **every variable referenced on the right-hand side** of its assignments.
+
+::: {.lab-example}
+::: {.lab-example-head}
+Two forms of `always` without a list
+:::
+
+Two equivalent ways to write it; in both, the block is sensitive to `a` and `b` without listing them.
+
+```verilog
+always @*        // sensitive to every variable read on the right-hand side
+  y = a & b;
+
+always @(*)      // same meaning, parenthesized form
+  y = a & b;
+```
+:::
+
+::: {.callout-important}
+## Important Note: Incomplete lists create latches
+
+A level-sensitive `always` block that describes combinational logic must list **every variable** referenced on the right-hand side of its assignments. If the list is incomplete, the logic is synthesized with **latches** at its outputs. This wastes silicon area, and the synthesized circuit may no longer match the simulation of the model.
+:::
+
+::: {.callout-tip}
+## Remember: `@*` for combinational logic
+
+With `@*`, the block is interpreted and synthesized as **level-sensitive combinational logic** whose implicit sensitivity list contains every referenced variable. This prevents accidental latches.
+:::
+
+### Writing numbers
+
+Binary numbers are written with the letter `b` preceded by a prime (apostrophe). The **size** is written first, then the **value**. For example, `2'b01` is a two-bit binary number with value 01.
+
+| Letter | Base |
+|:-:|:--|
+| `b` | Binary |
+| `d` | Decimal |
+| `o` | Octal |
+| `h` | Hexadecimal |
+
+- Numbers are stored as bit patterns, but they can be written in any of these bases.
+- If the base is not specified, the number is **decimal**.
+- If the size is not specified, the system assumes **at least 32 bits** (more if the host simulator has a longer word, such as 64 bits).
+- The `integer` data type is stored in a 32-bit representation.
+- An underscore may be inserted in a number to improve readability, for example `16'b0101_1110_0101_0011`. It has no other effect.
+
+<!-- TODO(instructor): the source OCR shows "l6'b0101_1110_0101_0011" (letter l instead of digit 1). Verify against the original. -->
+
+### `casex`, `casez`, and `default`
+
+The `case` construct has two variations:
+
+| Construct | Treated as don't-cares when matching |
+|:--|:--|
+| `casex` | Any bit of the case expression or case item that is `x` **or** `z` |
+| `casez` | Only bits that are `z` |
+
+If the case items do not cover all bit patterns of the case expression, some patterns have no match. Unlisted patterns can be handled with the **`default`** keyword as the **last** case item; its statement runs when no other item matches.
+
+::: {.callout-tip}
+## Remember: Why `default` matters
+
+`default` is useful when a sequential machine has more possible state codes than are actually used. It lets the designer map all unused states to a chosen next state without elaborating each one, rather than letting the synthesis tool assign the next state arbitrarily.
+:::
+
+The behavioral examples here are simple. Behavioral modeling and procedural assignment statements require knowledge of sequential circuits, which [Chapter 3](03-sequential-circuit-models.qmd) covers next.
+
+## Chapter Summary
+
+- Combinational logic can be modeled at gate level (`and`, `or`, ... instances), as dataflow (`assign`), or behaviorally (`always`).
+- Verilog uses four logic values: 0, 1, `x` (unknown), and `z` (high impedance).
+- Modules are combined hierarchically by instantiation; module declarations cannot be nested.
+- Three-state gates (`bufif1`, `bufif0`, `notif1`, `notif0`) output `z` when disabled; nets with several drivers use `tri`.
+- Dataflow models use operators, concatenation `{ }`, and the conditional operator `? :`.
+- Behavioral models use `always` with `reg` targets, `if-else`, and `case` (with `default`, `casex`, and `casez`). Writing `always @*` makes the sensitivity list complete and avoids accidental latches.
