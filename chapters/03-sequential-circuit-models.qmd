@@ -1,0 +1,792 @@
+---
+title: "Chapter 3: Synthesizable HDL Models of Sequential Circuits"
+subtitle: "Computer Architecture Laboratory, LAB3114"
+---
+
+<!--
+  Source: source pages 24-38.
+  Figures: 5.6 (section 3.2), 5.21, 5.22 and 5.23 (section 3.3), 5.20 and 5.24 (section 3.4). Tables: none.
+  Code placeholders: 14 examples / 23 code blocks.
+  The source ends on page 38 in the middle of the alternative Toggle_flip_flop model of Example 5.7.
+  Instructor-review items for this chapter are listed in instructor-review.md.
+-->
+
+::: {.lab-objectives}
+**Learning objectives**
+
+- Distinguish `initial` (single-pass) behavior from `always` (cyclic) behavior and know when each is used.
+- Generate a clock and control timing with the `#` delay and `@` event operators.
+- Choose between blocking (`=`) and nonblocking (`<=`) assignments.
+- Model latches and flip-flops, including an asynchronous reset, in a form a synthesis tool can infer.
+- Model Mealy and Moore state machines from their state diagrams.
+- Describe a clocked sequential circuit structurally and verify it with a test bench.
+:::
+
+## Overview {#overview}
+
+<!-- Unnumbered lead-in text that precedes section 3.1 in the source (page 24). -->
+
+Behavioral models are abstract representations of the functionality of digital hardware. Designers write them to describe quickly **how a circuit is to operate**, without first specifying its hardware. This chapter continues the discussion of behavioral modeling from [Chapter 2](02-combinational-circuit-models.qmd) and presents flip-flops and sequential circuits, in preparation for modeling more complex circuits.
+
+## 3.1 Behavioral Modeling {#behavioral-modeling}
+
+### Two kinds of behavior
+
+Verilog has two kinds of abstract behavior. Both begin executing when the simulator starts, at time t = 0.
+
+| | `initial` | `always` |
+|:--|:--|:--|
+| Name | Single-pass behavior | Cyclic behavior |
+| What it contains | One statement, or a block of statements enclosed by `begin` ... `end` or `fork` ... `join` | Statements that are re-executed |
+| Ends | Expires after its statement executes | Runs again and again until the simulation is stopped |
+| Typical use | Stimulus signals in a **test bench** | Circuit behavior |
+| Accepted by synthesis tools | No | Yes |
+
+A module can contain any number of `initial` or `always` statements. They execute **concurrently** with each other, starting at time 0, and can interact through shared variables.
+
+<!-- TODO(instructor): the source says synthesis tools do not accept initial. Some modern FPGA tools do accept initial blocks for register initial values; consider whether to qualify this statement for your lab toolchain. -->
+
+::: {.callout-important}
+## Important Note: Use `initial` for stimulus only
+
+Designers use single-pass behavior primarily to describe **stimulus signals in a test bench**, never to model the behavior of a circuit.
+:::
+
+A word description of a simple D flip-flop shows how `always` works: *whenever the rising edge of the clock occurs, if the reset input is asserted, the output Q gets 0; otherwise Q gets the value of input D.* The statements triggered by the clock repeat until the simulation ends. Section 3.2 shows this in Verilog.
+
+### Generating a clock
+
+An `initial` statement runs once, starting at the beginning of simulation. It is useful for generating input signals. To simulate a sequential circuit you also need a **clock source** to trigger the flip-flops. Three ways to provide a free-running clock follow.
+
+**Version 1: a loop with `repeat`.**
+
+::: {.lab-example}
+::: {.lab-example-head}
+Clock from one `initial` block with `repeat`
+:::
+
+Sets `clock` to 0, then repeats 30 times: wait 10 time units, complement `clock`.
+
+```verilog
+initial begin
+  clock = 1'b0;
+  repeat (30) #10 clock = ~clock;
+end
+```
+:::
+
+The `initial` block holds two statements inside `begin` and `end`. The first sets `clock` to 0 at time 0. The second is a loop that repeats 30 times, waiting 10 time units and then complementing `clock`. This produces **15 clock cycles**, each with a cycle time of **20 time units**.
+
+**Version 2: separate `initial` and `always` statements.**
+
+::: {.lab-example}
+::: {.lab-example-head}
+Clock from `initial`, a stopwatch, and `always`
+:::
+
+Uses one `initial` to set the clock, a second `initial` to end the simulation, and an `always` statement as the clock generator.
+
+```verilog
+initial begin
+  clock = 1'b0;
+end
+initial #300 $finish;
+always #10 clock = ~clock;
+```
+:::
+
+- The first `initial` behavior has one statement: it sets `clock` to 0 at time 0 and then **expires**.
+- The second single-pass behavior is a **stopwatch**. The system task `$finish` ends the simulation unconditionally after 300 time units. With only one statement, `begin` ... `end` is not needed.
+- After 10 time units, the `always` statement repeatedly complements `clock`, giving a clock generator with a cycle time of 20 time units.
+- The three behavioral statements can be written in **any order**.
+
+**Version 3: a `forever` loop.**
+
+::: {.lab-example}
+::: {.lab-example-head}
+Clock from a `forever` loop
+:::
+
+Initializes `clock`, then complements it every 10 time units without end.
+
+```verilog
+initial begin clock = 0; forever #10 clock = ~clock; end
+```
+:::
+
+This version initializes the clock and then executes an indefinite loop (`forever`) in which `clock` is complemented after a delay of 10 time steps. The single-pass behavior never finishes, so it **does not expire**; another behavior must terminate the simulation.
+
+### Timing and event control
+
+The activity of either kind of behavior can be controlled by:
+
+- the **delay operator `#`**, which suspends execution until a specified time has elapsed. It is commonly used in single-pass behaviors, such as test-bench stimulus.
+- the **event control operator `@`**, which suspends activity until an event occurs. An event can be an unconditional change of a signal value (for example, `@ A`) or a specified transition of a signal value (for example, `@ (posedge clock)`).
+
+The general form of an `always` statement with an event control expression is:
+
+::: {.lab-example}
+::: {.lab-example-head}
+General form of an `always` block
+:::
+
+Shows the template: an event control expression followed by procedural assignment statements in `begin` ... `end`.
+
+```verilog
+always @ (event control expression) begin
+  // Procedural assignment statements that execute when the condition is met
+end
+```
+:::
+
+- The **event control expression** (also called the **sensitivity list**) is the condition that must occur to start executing the procedural statements.
+- The variables on the **left-hand side** of procedural statements must be of type `reg` and declared as such.
+- The **right-hand side** can be any expression built from Verilog operators.
+- Statements in the block execute **sequentially, top to bottom**. After the last one, the behavior waits for the event control expression to be satisfied again.
+
+A sensitivity list can specify **level-sensitive** events, **edge-sensitive** events, or a combination of the two. Designers do not use the combination, because synthesis tools cannot translate it into hardware.
+
+- **Level-sensitive** events occur in combinational circuits and in latches. A change in `A`, `B`, or `C` starts an `always` block whose list contains those three signals.
+- **Edge-sensitive** events occur in synchronous sequential circuits, where flip-flops change only in response to a clock transition: a positive edge or a negative edge, **but not both**. Verilog provides the keywords **`posedge`** and **`negedge`**.
+
+For example, a list containing `posedge clock` and `negedge reset` starts the block only if the clock makes a positive transition or reset makes a negative transition. Verilog 2001 and 2005 allow a comma-separated list.
+
+::: {.lab-example}
+::: {.lab-example-head}
+Event control expressions
+:::
+
+Shows three forms: a level-sensitive list (`A or B or C`), an edge-sensitive list with `or` (Verilog 1995), and the same list with a comma (Verilog 2001, 2005).
+
+```verilog
+always @ (A or B or C)                       // level-sensitive
+always @ (posedge clock or negedge reset)   // Verilog 1995
+always @ (posedge clock, negedge reset)     // Verilog 2001, 2005
+```
+:::
+
+| | Verilog 1995 | Verilog 2001, 2005 |
+|:--|:--|:--|
+| Separator in the event control expression | Keyword `or` | Comma |
+
+### Procedural and continuous assignment
+
+A **procedural assignment** assigns a logic value to a variable inside an `initial` or `always` statement. A **continuous assignment** ([Chapter 2](02-combinational-circuit-models.qmd)) is different:
+
+| | Continuous assignment | Procedural assignment |
+|:--|:--|:--|
+| Where | Outside behaviors, with `assign` | Inside `initial` or `always` |
+| When it updates | Whenever a variable on its right-hand side changes (implicit level-sensitive list) | Only when the statement is executed |
+
+For example, the clock was complemented only when the statement `clock = ~clock` executed, which did not happen until 10 time units after the start of simulation. A `reg` variable **keeps its value** until a procedural assignment gives it a new one.
+
+### Blocking and nonblocking assignments
+
+There are two kinds of procedural assignment, distinguished by their operator.
+
+| | Blocking | Nonblocking |
+|:-:|:--|:--|
+| Operator | `=` | `<=` |
+| Execution | Statements run **sequentially**, in the order listed | Right-hand sides of the whole set are evaluated first; left-hand sides are assigned **afterward, together** |
+
+Consider two procedural assignments, first as **blocking**:
+
+::: {.lab-example}
+::: {.lab-example-head}
+Blocking assignments
+:::
+
+Transfers `A` into `B`, then increments the new `B` and transfers it to `C`.
+
+```verilog
+B = A;
+C = B + 1;
+```
+:::
+
+The first statement transfers A into B. The second increments the new value of B and transfers it to C. When both finish, **C contains A + 1**.
+
+Now the same two statements as **nonblocking**:
+
+::: {.lab-example}
+::: {.lab-example-head}
+Nonblocking assignments
+:::
+
+The same two assignments written with the nonblocking operator.
+
+```verilog
+B <= A;
+C <= B + 1;
+```
+:::
+
+The right-hand sides are evaluated and stored in temporary locations: the value of A in one, the value of B + 1 in another. Only after all the expressions in the block are evaluated are the left-hand sides assigned. Now **C contains the original value of B, plus 1**.
+
+::: {.callout-tip}
+## Remember: Which assignment to use
+
+- Use **blocking** assignments when sequential ordering is imperative, and in cyclic behavior that is level sensitive (combinational logic).
+- Use **nonblocking** assignments when modeling concurrent execution, for example **edge-sensitive** behavior such as synchronous, concurrent register transfers, and when modeling **latched** behavior.
+
+Nonblocking assignments are imperative in register-transfer-level design: they model the concurrent operations of physical hardware synchronized by a common clock.
+:::
+
+Today's designers are expected to know which HDL features are useful in practice and how to avoid the ones that are not. Following these rules prevents conditions that lead synthesis tools astray and create **mismatches between the behavior of a model and the behavior of the hardware** that synthesis produces.
+
+## 3.2 Flip-Flops and Latches {#flip-flops-and-latches}
+
+HDL Examples 5.1 through 5.4 describe various flip-flops and a D latch.
+
+### D latch
+
+A D latch is **transparent**: its output follows a change in the data input for as long as the enable input is asserted.
+
+::: {.lab-figure .lab-figure-sm}
+![**Figure 5.6.** D latch](../figures/figure-5.6.png){fig-alt="Logic diagram of a D latch with data input D, enable input, and output Q."}
+:::
+
+::: {.lab-example}
+::: {.lab-example-head}
+[HDL Example 5.1]{.lab-example-id} D latch
+:::
+
+Describes a latch with inputs `D` and `enable` and output `Q`, in the original syntax and in the alternative (Verilog 2001) syntax.
+
+[Original syntax]{.lab-code-label}
+
+```verilog
+// HDL Example 5.1: Description of D latch (See Fig. 5.6)
+module D_latch (Q, D, enable);
+  output Q;
+  input  D, enable;
+  reg    Q;
+
+  always @(enable or D)
+    if (enable) Q <= D;   // Same as: if (enable == 1)
+endmodule
+```
+
+[Alternative syntax (output declared as `reg` in the port list)]{.lab-code-label}
+
+```verilog
+// Alternative syntax (Verilog 2001, 2005)
+// (use in place of the model above; do not compile both)
+module D_latch (output reg Q, input enable, D);
+  always @(enable, D)
+    if (enable) Q <= D;
+endmodule
+```
+:::
+
+- The module has two inputs, `D` and `enable`, and one output, `Q`.
+- `Q` is assigned in a procedural statement, so it must be declared `reg`.
+- Latches respond to input **levels**, so both inputs are listed **without edge qualifiers** in the event control expression.
+- A single procedural assignment transfers `D` to `Q` if `enable` is true (logic 1). It is executed every time `D` changes while `enable` is 1.
+
+### D flip-flops
+
+A D-type flip-flop is the simplest example of a sequential machine. Example 5.2 describes two positive-edge D flip-flops in two modules: the first responds only to the clock; the second adds an **asynchronous reset**.
+
+::: {.lab-example}
+::: {.lab-example-head}
+[HDL Example 5.2]{.lab-example-id} D flip-flops without and with asynchronous reset
+:::
+
+Two modules: a positive-edge D flip-flop, and one with an active-low asynchronous reset input.
+
+[D flip-flop without reset]{.lab-code-label}
+
+```verilog
+// HDL Example 5.2
+// D flip-flop without reset
+module D_FF (Q, D, Clk);
+  output Q;
+  input  D, Clk;
+  reg    Q;
+
+  always @(posedge Clk)
+    Q <= D;
+endmodule
+```
+
+[D flip-flop with asynchronous reset (Verilog 2001, 2005)]{.lab-code-label}
+
+```verilog
+// D flip-flop with asynchronous reset (V2001, V2005)
+module DFF (output reg Q, input D, Clk, rst);
+  always @(posedge Clk, negedge rst)
+    if (~rst) Q <= 1'b0;   // Same as: if (rst == 0)
+    else      Q <= D;
+endmodule
+```
+:::
+
+- Output `Q` must be declared `reg` as well as `output`, because it is the target of a procedural assignment.
+- `posedge` makes the transfer of `D` into `Q` happen on the **positive clock edge** of `Clk`. A change in `D` at any other time does not change `Q`.
+
+::: {.callout-important}
+## Important Note: Coding an asynchronous reset so tools can infer the clock
+
+A designer knows which signal is the clock, but `clock` is not an identifier that synthesis tools recognize automatically. The description must be written so that the tool can infer the clock. The event expression can contain any number of edge events (`posedge` or `negedge`); one of them must be the clock event and the others are conditions for asynchronous logic. Follow three rules:
+
+1. Each `if` or `else if` statement in the procedural block corresponds to an **asynchronous event**.
+2. The last `else` corresponds to the **clock event**.
+3. The asynchronous events are **tested first**.
+:::
+
+In the second module, the `negedge rst` event is asynchronous, because it matches the `if (~rst)` test. While `rst` is 0, `Q` is cleared to 0, and a positive clock transition has no effect. Only when `rst` is 1 can the positive clock edge transfer `D` into `Q`.
+
+::: {.callout-tip}
+## Remember: Always provide a reset
+
+Hardware always has a reset signal. Every model of edge-sensitive behavior should include a **reset (or preset) input**. Without it, the initial state of the flip-flops cannot be determined, and a sequential circuit cannot be tested in HDL simulation unless an initial state can be assigned with an input signal.
+:::
+
+### T and JK flip-flops from a D flip-flop
+
+Example 5.3 builds a T flip-flop and a JK flip-flop from a D flip-flop and gates. Each circuit is described by the **characteristic equation** of the flip-flop:
+
+- T flip-flop: Q(t + 1) = Q ⊕ T
+- JK flip-flop: Q(t + 1) = JQ' + K'Q
+
+::: {.lab-example}
+::: {.lab-example-head}
+[HDL Example 5.3]{.lab-example-id} T and JK flip-flops built from a D flip-flop and gates
+:::
+
+Each module computes the D input from the characteristic equation with a continuous assignment and instantiates a D flip-flop.
+
+[Module `TFF`]{.lab-code-label}
+
+```verilog
+// HDL Example 5.3
+// T flip-flop from D flip-flop and gates
+module TFF (Q, T, Clk, rst);
+  output Q;
+  input  T, Clk, rst;
+  wire   DT;
+
+  assign DT = Q ^ T;   // Continuous assignment
+
+  // Instantiate the D flip-flop
+  DFF TF1 (Q, DT, Clk, rst);
+endmodule
+```
+
+[Module `JKFF` (Verilog 2001, 2005)]{.lab-code-label}
+
+```verilog
+// JK flip-flop from D flip-flop and gates (V2001, V2005)
+module JKFF (output Q, input J, K, Clk, rst);
+  wire JK;
+
+  assign JK = (J & ~Q) | (~K & Q);
+
+  // Instantiate D flip-flop
+  DFF JK1 (Q, JK, Clk, rst);
+endmodule
+```
+
+[Supporting module: D flip-flop (Verilog 2001, 2005)]{.lab-code-label}
+
+```verilog
+// D flip-flop (V2001, V2005)
+module DFF (output reg Q, input D, Clk, rst);
+  always @(posedge Clk, negedge rst)
+    if (~rst) Q <= 1'b0;
+    else      Q <= D;
+endmodule
+```
+:::
+
+The first module, `TFF`, instantiates `DFF`. The wire `DT` is assigned the exclusive-OR of `Q` and `T`, which is what building a T flip-flop from a D flip-flop requires. Replacing `D` with `DT` in the instantiation produces the T flip-flop. The JK flip-flop is built the same way: its characteristic equation defines the replacement for `D` in the instantiated `DFF`.
+
+Example 5.4 describes the JK flip-flop another way, using the **characteristic table** instead of the characteristic equation.
+
+::: {.lab-example}
+::: {.lab-example-head}
+[HDL Example 5.4]{.lab-example-id} JK flip-flop from its characteristic table
+:::
+
+Uses a `case` statement on the concatenation of `J` and `K` to choose the next state of `Q` at the positive clock edge.
+
+```verilog
+// HDL Example 5.4
+// JK flip-flop from its characteristic table
+module JK_FF (input J, K, Clk, output reg Q, output Q_b);
+  assign Q_b = ~Q;
+
+  always @(posedge Clk)
+    case ({J, K})
+      2'b00: Q <= Q;    // No change
+      2'b01: Q <= 1'b0; // Reset
+      2'b10: Q <= 1'b1; // Set
+      2'b11: Q <= ~Q;   // Toggle
+    endcase
+endmodule
+```
+:::
+
+The `case` statement checks the two-bit number formed by concatenating `J` and `K`. The case expression `{J, K}` is compared with the case items in order, and the first match is executed. Because the concatenation is a two-bit number, it can be 00, 01, 10, or 11; the first bit is `J` and the second is `K`. The four conditions give the value of the next state of `Q` after a positive clock edge.
+
+## 3.3 State Diagram {#state-diagram}
+
+An HDL model of a sequential circuit can follow the format of the circuit's **state diagram**.
+
+### Mealy model
+
+HDL Example 5.5 models the Mealy zero-detecting machine described by its state diagram.
+
+<!-- TODO(instructor): the source OCR reads "the tare machine described by the state diagram"; probably "the zero-detector machine". Fig. 5.16 is not available as a PNG. -->
+
+- The input, output, clock, and reset are declared in the usual way.
+- The flip-flop state is held in two variables: **`state`** (present state) and **`next_state`** (next value).
+- State codes are assigned with a **`parameter`** statement. Verilog allows constants to be defined in a module with the keyword `parameter`. The four states S0 through S3 are assigned binary 00 through 11.
+- The notation `S2 = 2'b10` is preferable to `S2 = 2`: the first uses only two bits, while the second creates a binary number with 32 (or 64) bits.
+
+::: {.lab-example}
+::: {.lab-example-head}
+[HDL Example 5.5]{.lab-example-id} Mealy FSM zero detector, with test bench
+:::
+
+A three-`always`-block model of the Mealy machine (state register, next-state logic, output logic), followed by a test bench that applies a clock, reset pulses, and an input sequence with `fork` ... `join`.
+
+[Module `Mealy_Zero_Detector`]{.lab-code-label}
+
+```verilog
+// HDL Example 5.5
+// Mealy FSM zero detector (See Fig. 5.16)
+module Mealy_Zero_Detector (output reg y_out, input x_in, clock, reset);
+  reg [1:0] state, next_state;
+  parameter S0 = 2'b00, S1 = 2'b01, S2 = 2'b10, S3 = 2'b11;
+
+  // State register
+  always @(posedge clock, negedge reset)
+    if (reset == 0) state <= S0;
+    else            state <= next_state;
+
+  // Next-state logic
+  always @(state, x_in)
+    case (state)
+      S0: if (x_in)  next_state = S1; else next_state = S0;
+      S1: if (x_in)  next_state = S3; else next_state = S0;
+      S2: if (~x_in) next_state = S0; else next_state = S2;
+      S3: if (x_in)  next_state = S2; else next_state = S0;
+    endcase
+
+  // Output logic
+  always @(state, x_in)
+    case (state)
+      S0:         y_out = 0;
+      S1, S2, S3: y_out = ~x_in;
+    endcase
+endmodule
+```
+
+[Test bench (clock, reset, and `x_in` waveforms)]{.lab-code-label}
+
+```verilog
+`timescale 1ns / 1ps
+
+// Test bench for Mealy_Zero_Detector
+module t_Mealy_Zero_Detector;
+  wire t_y_out;
+  reg  t_x_in, t_clock, t_reset;
+
+  Mealy_Zero_Detector M0 (t_y_out, t_x_in, t_clock, t_reset);
+
+  initial #200 $finish;
+
+  initial begin
+    t_clock = 0;
+    forever #5 t_clock = ~t_clock;
+  end
+
+  initial fork
+    t_reset = 0;
+    #2   t_reset = 1;
+    #87  t_reset = 0;
+    #89  t_reset = 1;
+    #10  t_x_in = 1;
+    #30  t_x_in = 0;
+    #40  t_x_in = 1;
+    #50  t_x_in = 0;
+    #52  t_x_in = 1;
+    #54  t_x_in = 0;
+    #70  t_x_in = 1;
+    #80  t_x_in = 1;
+    #90  t_x_in = 1;
+    #100 t_x_in = 0;
+    #120 t_x_in = 1;
+    #160 t_x_in = 0;
+    #170 t_x_in = 1;
+  join
+endmodule
+```
+:::
+
+**How the model works.** The model has three `always` blocks that execute concurrently and communicate through shared variables. Figure 5.21 shows the general hardware organization of Mealy and Moore machines.
+
+::: {.lab-figure .lab-figure-md}
+![**Figure 5.21.** Block diagrams of Mealy and Moore state machines](../figures/figure-5.21.png){fig-alt="Two block diagrams, one for a Mealy machine and one for a Moore machine, each with a state register and combinational logic."}
+:::
+
+| Block | Role | Assignment | Hardware equivalent |
+|:--|:--|:-:|:--|
+| 1 | **State register**: resets the circuit to S0 = 00 and updates `state` on the positive clock edge | `<=` | D flip-flops holding the state |
+| 2 | **Next-state logic**: gives `next_state` as a function of present state and input | `=` | Combinational logic |
+| 3 | **Output logic**: gives `y_out` as a function of present state and input | `=` | Combinational logic |
+
+- In block 1, `state <= next_state` executes **only on a positive clock edge**, so a change of `next_state` in block 2 reaches `state` only at the next clock edge. The value assigned is the value of `next_state` just before the edge.
+- In block 2, the `case` statement implements the state transitions given by the annotated edges of the state diagram.
+- Block 3 could be merged with block 2; it is a separate behavior only for clarity. Output `y_out` can change when `x_in` changes while the circuit is in any given state.
+- The registers use the **nonblocking** operator because the flip-flops of a sequential machine are updated concurrently by a common clock. Blocks 2 and 3 describe **level-sensitive** combinational logic, so they use the **blocking** operator; their sensitivity lists include both the state and the input.
+
+::: {.callout-note}
+## Key Concept: Reset in the state register only
+
+The reset is associated with the **first** `always` block and is modeled as an **active-low** reset. Because it is part of the state-transition model, it does not have to be repeated in the combinational logic for the next state and the output. The result is a simpler, more readable description. This modeling style is commonly used by designers.
+:::
+
+**Summary of the machine's behavior.** At every positive clock edge, if reset is not asserted, block 1 updates the state. The change in `state` is detected by the sensitivity list of block 2, which updates `next_state` (used by block 1 at the following clock edge). Block 3 also detects the change in `state` and updates the output. Blocks 2 and 3 also respond to changes in `x_in`.
+
+**Test bench.** The test bench provides waveforms for the model, with the results in Figure 5.22. The waveform description uses `fork` ... `join`: statements inside the block execute **in parallel**, so the time delays are all relative to the common reference t = 0. This is usually more convenient than `begin` ... `end` for describing waveforms. The reset waveform is triggered "on the fly" to show that the machine recovers from an unexpected reset in any state.
+
+::: {.lab-figure .lab-figure-md}
+![**Figure 5.22.** Simulation output of `Mealy_Zero_Detector`](../figures/figure-5.22.png){fig-alt="Timing diagram with signals t_clock, t_reset, t_x_in, state[1:0], next_state[1:0], and t_y_out over about 100 time units. Annotations mark a valid Mealy output and a Mealy glitch on t_y_out."}
+:::
+
+Notice that `t_y_out` responds to changes in **both the state and the input** and has a **glitch** (a transient logic value).
+
+### Moore model
+
+A Moore FSM can be modeled by HDL Example 5.6. It shows that the state transitions of a clocked sequential machine can be described with **only one `always` block**.
+
+::: {.lab-example}
+::: {.lab-example-head}
+[HDL Example 5.6]{.lab-example-id} Moore model FSM
+:::
+
+Models the state transitions with one clocked `always` block and a `case` statement; the output is a continuous assignment of the state.
+
+```verilog
+// HDL Example 5.6
+// Moore model FSM (see Fig. 5.19)
+module Moore_Model_Fig_5_19 (output [1:0] y_out, input x_in, clock, reset);
+  reg [1:0] state;
+  parameter S0 = 2'b00, S1 = 2'b01, S2 = 2'b10, S3 = 2'b11;
+
+  always @(posedge clock, negedge reset)
+    if (reset == 0) state <= S0;
+    else case (state)
+      S0: if (~x_in) state <= S1; else state <= S0;
+      S1: if (x_in)  state <= S2; else state <= S3;
+      S2: if (~x_in) state <= S3; else state <= S2;
+      S3: if (~x_in) state <= S0; else state <= S3;
+    endcase
+
+  assign y_out = state;   // Output of flip-flops
+endmodule
+```
+:::
+
+- The present state is the variable `state`. Transitions are triggered by the positive clock edge according to the conditions in the `case` statement.
+- The combinational logic that implicitly determines the next state is included in the **nonblocking** assignment to `state`.
+- The output is **independent of the input** and is taken directly from the flip-flop outputs. The two-bit output `y_out` is a continuous (`assign`) statement equal to the present-state vector.
+
+Figure 5.23 shows simulation results. The output of the Moore machine **has no glitches**.
+
+::: {.lab-figure .lab-figure-md}
+![**Figure 5.23.** Simulation output of HDL Example 5.6](../figures/figure-5.23.png){fig-alt="Timing diagram with signals t_clock, t_reset, t_x_in, state[1:0], and t_y_out[1:0]. The t_y_out values follow the state values exactly, with no glitches."}
+:::
+
+| | Mealy machine (Example 5.5) | Moore machine (Example 5.6) |
+|:--|:--|:--|
+| Output depends on | Present state **and** input | Present state only |
+| `always` blocks in the example | Three | One |
+| Output in the example | Assigned in its own `always` block | Continuous assignment of the state vector |
+| Glitches in the output | Can occur | None |
+
+## 3.4 Structural Description of Clocked Sequential Circuits {#structural-description-of-clocked-sequential-circuits}
+
+Combinational logic can be described in Verilog by a connection of gates (primitives and UDPs), by dataflow statements (continuous assignments), or by level-sensitive cyclic behaviors (`always` blocks).
+
+Sequential circuits are composed of combinational logic and flip-flops. Their HDL models use sequential UDPs and behavioral statements (edge-sensitive cyclic behaviors) to describe the flip-flops. One way to describe a sequential circuit **combines dataflow and behavioral statements**:
+
+- The flip-flops are described with `always` statements.
+- The combinational part is described with `assign` statements and Boolean equations.
+- Separate modules are combined into a **structural model** by instantiation within a module.
+
+### Two models of the same machine
+
+HDL Example 5.7 describes a two-bit binary counter, controlled by input `x_in`, in two ways so you can compare them:
+
+1. **Behavioral (state-diagram based):** `Moore_Model_Fig_5_20`, a direct model of the counter's state diagram.
+2. **Structural:** `Moore_Model_STR_Fig_5_20`, which represents the structure shown in Figure 5.20 with two modules: the circuit itself and the T flip-flop it uses.
+
+The T flip-flop can be modeled in two ways:
+
+- The first model states that at every clock tick the output **toggles if the toggle input is asserted**. It is attractive because the reader does not need to remember the characteristic equation.
+- The second model uses the characteristic equation, Q(t + 1) = Q ⊕ T.
+
+The two models are interchangeable and **synthesize to the same hardware circuit**.
+
+::: {.lab-figure .lab-figure-md}
+![**Figure 5.20.** Sequential circuit with T flip-flops (Binary Counter)](../figures/figure-5.20.png){fig-alt="Logic diagram of a two-bit binary counter built from two T flip-flops and gates."}
+:::
+
+::: {.lab-example}
+::: {.lab-example-head}
+[HDL Example 5.7]{.lab-example-id} State-diagram-based and structural models of a two-bit counter, with test bench
+:::
+
+Five code blocks: the behavioral model, the structural model, two T flip-flop models, and a test bench that compares both machines.
+
+[Behavioral model `Moore_Model_Fig_5_20` (Verilog 2001, 2005)]{.lab-code-label}
+
+```verilog
+// HDL Example 5.7
+// State-diagram-based model (V2001, 2005)
+module Moore_Model_Fig_5_20 (output y_out, input x_in, clock, reset);
+  reg [1:0] state;
+  parameter S0 = 2'b00, S1 = 2'b01, S2 = 2'b10, S3 = 2'b11;
+
+  always @(posedge clock, negedge reset)
+    if (reset == 0) state <= S0;   // Initialize to state S0
+    else case (state)
+      S0: if (x_in) state <= S1; else state <= S0;
+      S1: if (x_in) state <= S2; else state <= S1;
+      S2: if (x_in) state <= S3; else state <= S2;
+      S3: if (x_in) state <= S0; else state <= S3;
+    endcase
+
+  assign y_out = (state == S3);
+endmodule
+```
+
+[Structural model `Moore_Model_STR_Fig_5_20`]{.lab-code-label}
+
+```verilog
+// Structural model
+module Moore_Model_STR_Fig_5_20 (output y_out, A, B, input x_in, clock, reset);
+  wire TA, TB;
+
+  // Flip-flop input equations
+  assign TA = x_in & B;
+  assign TB = x_in;
+
+  // Output equation
+  assign y_out = A & B;
+
+  // Instantiate toggle flip-flops (A and B are the flip-flop outputs)
+  Toggle_flip_flop M_A (A, TA, clock, reset);
+  Toggle_flip_flop M_B (B, TB, clock, reset);
+endmodule
+```
+
+[T flip-flop module `Toggle_flip_flop` (toggles when T is asserted)]{.lab-code-label}
+
+```verilog
+module Toggle_flip_flop (Q, T, CLK, RST_b);
+  output Q;
+  input  T, CLK, RST_b;
+  reg    Q;
+
+  always @(posedge CLK, negedge RST_b)
+    if (RST_b == 0) Q <= 1'b0;
+    else if (T)     Q <= ~Q;
+endmodule
+```
+
+[Alternative T flip-flop using the characteristic equation]{.lab-code-label}
+
+```verilog
+// Alternative model using characteristic equation, Q(t+1) = Q ^ T
+// (use in place of the model above; do not compile both)
+module Toggle_flip_flop (Q, T, CLK, RST_b);
+  output Q;
+  input  T, CLK, RST_b;
+  reg    Q;
+  
+  always @(posedge CLK, negedge RST_b)
+    if (RST_b == 0) Q <= 1'b0;
+    else            Q <= Q ^ T;
+endmodule
+```
+
+[Test bench (stimulus module for both models)]{.lab-code-label}
+
+```verilog
+`timescale 1ns / 1ps
+
+// Test bench for Moore_Model_Fig_5_20
+module t_Moore_Model_Fig_5_20;
+  wire t_y_out_1, t_y_out_2, A, B;
+  reg  t_x_in, t_clock, t_reset;
+
+  // State-diagram-based model
+  Moore_Model_Fig_5_20     M1 (t_y_out_1, t_x_in, t_clock, t_reset);
+  // Structural model
+  Moore_Model_STR_Fig_5_20 M2 (t_y_out_2, A, B, t_x_in, t_clock, t_reset);
+
+  initial #200 $finish;
+
+  // Clock and reset
+  initial begin
+    t_reset = 0;
+    t_clock = 0;
+    #5 t_reset = 1;
+    repeat (16) #5 t_clock = ~t_clock;
+  end
+
+  // Input signal
+  initial begin
+    t_x_in = 0;
+    #15 t_x_in = 1;
+    repeat (8) #10 t_x_in = ~t_x_in;
+  end
+endmodule
+```
+:::
+
+### How the counter works
+
+- Flip-flops **A** and **B** are included as outputs so their operation can be checked.
+- The output `y_out` is enabled when the count reaches binary 11.
+- The flip-flop input equations and the output equation are evaluated with continuous assignments. The instantiated T flip-flops use `TA` and `TB` as defined by the input equations.
+- The T flip-flop module has an active-low reset input that resets the flip-flop to 0.
+
+::: {.callout-note}
+## Technical Detail: Input and output equations of the counter
+
+In the structural model, the flip-flop inputs and output are TA = x_in AND B, TB = x_in, and y_out = A AND B.
+:::
+
+### Test bench and results
+
+The test bench includes both models of the machine. The stimulus module gives the **same inputs to both circuits** so their outputs can be displayed together.
+
+- The first `initial` block provides **eight clock cycles** with a period of 10 ns.
+- The second `initial` block toggles input `x_in` at the **negative edge** of the clock.
+
+Figure 5.24 shows the simulation result.
+
+::: {.lab-figure .lab-figure-md}
+![**Figure 5.24.** Simulation output of HDL Example 5.7](../figures/figure-5.24.png){fig-alt="Timing diagram with signals t_clock, t_reset, t_x_in, t_y_out_1, t_y_out_2, A, and B. Signals A and B step through the binary count while t_y_out_1 and t_y_out_2 rise together when both A and B are 1."}
+:::
+
+- The pair (A, B) goes through the binary sequence **00, 01, 10, 11** and back to 00.
+- The count changes on a **positive clock edge**, provided `x_in = 1`. If `x_in = 0`, the count does not change.
+- `y_out` equals 1 when both A and B are 1.
+
+This verifies the main functionality of the circuit, but **not recovery from an unexpected reset event**.
+
+## Chapter Summary
+
+- `initial` runs once and is used for test-bench stimulus; `always` repeats and describes circuit behavior.
+- Use `#` for delays and `@` (with `posedge`, `negedge`, or level changes) for event control.
+- Use **blocking** (`=`) for combinational logic and **nonblocking** (`<=`) for edge-sensitive and latched behavior.
+- Write an asynchronous reset so that the asynchronous tests come first in the `if` chain and the last `else` is the clock event; always include a reset.
+- A Mealy output depends on state and input and can glitch; a Moore output depends on state only.
+- A sequential circuit can be modeled behaviorally or structurally (T flip-flops plus combinational equations). Both versions synthesize to the same hardware.
