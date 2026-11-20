@@ -1,0 +1,65 @@
+project:
+  type: website
+  output-dir: _site
+  render:
+    - index.qmd
+    - chapters/*.qmd
+  resources:
+    - figures/
+
+website:
+  title: "LAB3114"
+  description: "Computer Architecture Laboratory: Hardware Description Languages and Verilog"
+  favicon: assets/favicon.svg
+  page-navigation: true
+  back-to-top-navigation: true
+  bread-crumbs: false
+  search:
+    location: navbar
+    type: overlay
+  navbar:
+    pinned: true
+    title: "Verilog HDL Handbook"
+  sidebar:
+    style: docked
+    collapse-level: 1
+    contents:
+      - href: index.qmd
+        text: Home
+      - section: "Chapters"
+        contents:
+          - chapters/01-hardware-description-language.qmd
+          - chapters/02-combinational-circuit-models.qmd
+          - chapters/03-sequential-circuit-models.qmd
+  page-footer:
+    center: "Computer Architecture Laboratory | LAB3114"
+
+format:
+  html:
+    lang: en
+    theme:
+      light: [styles/theme-light.scss, styles/custom.scss]
+      dark: [styles/theme-dark.scss, styles/custom.scss]
+    respect-user-color-scheme: true
+    toc: true
+    toc-depth: 3
+    toc-title: "On this page"
+    toc-location: right
+    number-sections: false
+    smooth-scroll: true
+    code-copy: true
+    code-overflow: scroll
+    code-line-numbers: false
+    code-block-border-left: false
+    highlight-style: github
+    callout-appearance: simple
+    callout-icon: false
+    fig-align: center
+    link-external-newwindow: true
+    include-in-header: assets/head.html
+    include-after-body: assets/back-to-top-guard.html
+    grid:
+      sidebar-width: 280px
+      body-width: 760px
+      margin-width: 250px
+      gutter-width: 2rem

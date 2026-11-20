@@ -1,0 +1,71 @@
+---
+pagetitle: "Verilog HDL Handbook"
+toc: false
+---
+
+::: {.lab-hero}
+::: {.lab-hero-course}
+Computer Architecture Laboratory, LAB3114
+:::
+
+# Hardware Description Languages with Verilog
+
+::: {.lab-hero-lead}
+Prepare for the HDL laboratory assignments. You will model combinational and sequential circuits in Verilog, check them with a test bench, and learn which coding styles a synthesis tool can turn into hardware.
+:::
+
+```{=html}
+<svg class="lab-wave" viewBox="0 0 1200 72" preserveAspectRatio="none" role="presentation" aria-hidden="true" focusable="false">
+  <path class="lab-wave-clock" d="M0 26 H40 V10 H80 V26 H120 V10 H160 V26 H200 V10 H240 V26 H280 V10 H320 V26 H360 V10 H400 V26 H440 V10 H480 V26 H520 V10 H560 V26 H600 V10 H640 V26 H680 V10 H720 V26 H760 V10 H800 V26 H840 V10 H880 V26 H920 V10 H960 V26 H1000 V10 H1040 V26 H1080 V10 H1120 V26 H1160 V10 H1200"/>
+  <path class="lab-wave-data" d="M0 62 H110 V46 H200 V62 H330 V46 H390 V62 H520 V46 H640 V62 H700 V46 H860 V62 H930 V46 H1060 V62 H1200"/>
+</svg>
+```
+
+[Start with Chapter 1](chapters/01-hardware-description-language.qmd){.btn .btn-primary}
+:::
+
+# Chapters
+
+::: {.lab-chapter}
+### [Chapter 1: Hardware Description Language](chapters/01-hardware-description-language.qmd)
+
+Why designers describe hardware in text, where an HDL fits in the design flow, and how to read your first Verilog module.
+
+- [1.1 Module Declaration](chapters/01-hardware-description-language.qmd#module-declaration)
+- [1.2 Boolean Expressions](chapters/01-hardware-description-language.qmd#boolean-expressions)
+- [1.3 User-Defined Primitives](chapters/01-hardware-description-language.qmd#user-defined-primitives)
+:::
+
+::: {.lab-chapter}
+### [Chapter 2: HDL Models of Combinational Circuits](chapters/02-combinational-circuit-models.qmd)
+
+Three ways to model the same combinational circuit: gates, dataflow equations, and behavior.
+
+- [2.1 Gate-level Modeling](chapters/02-combinational-circuit-models.qmd#gate-level-modeling)
+- [2.2 Three-State Gates](chapters/02-combinational-circuit-models.qmd#three-state-gates)
+- [2.3 Dataflow Modeling](chapters/02-combinational-circuit-models.qmd#dataflow-modeling)
+- [2.4 Behavioral Modeling](chapters/02-combinational-circuit-models.qmd#behavioral-modeling)
+:::
+
+::: {.lab-chapter}
+### [Chapter 3: Synthesizable HDL Models of Sequential Circuits](chapters/03-sequential-circuit-models.qmd)
+
+Latches, flip-flops, state machines, and the coding rules that keep a simulated model and the synthesized hardware in agreement.
+
+- [3.1 Behavioral Modeling](chapters/03-sequential-circuit-models.qmd#behavioral-modeling)
+- [3.2 Flip-Flops and Latches](chapters/03-sequential-circuit-models.qmd#flip-flops-and-latches)
+- [3.3 State Diagram](chapters/03-sequential-circuit-models.qmd#state-diagram)
+- [3.4 Structural Description of Clocked Sequential Circuits](chapters/03-sequential-circuit-models.qmd#structural-description-of-clocked-sequential-circuits)
+:::
+
+## How to read this handbook
+
+| Element | What it tells you |
+|:--|:--|
+| Key Concept | A definition or idea you need before moving on. |
+| Remember | A rule of thumb to keep in mind while coding. |
+| Important Note | A rule or restriction that causes errors if ignored. |
+| Technical Detail | Extra precision for readers who want the full picture. |
+| Example | A numbered HDL example, shown with a copyable code block. |
+
+Code blocks have a copy button in the top-right corner. Figures keep their original numbers (for example, Figure 3.37), so you can match them to your lecture notes. Use the search box in the top bar to find any keyword.
