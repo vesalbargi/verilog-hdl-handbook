@@ -20,6 +20,10 @@ website:
   navbar:
     pinned: true
     title: "Verilog HDL Handbook"
+    tools:
+      - icon: github
+        href: https://github.com/vesalbargi/verilog-hdl-handbook.git
+        target: _blank
   sidebar:
     style: docked
     collapse-level: 1
