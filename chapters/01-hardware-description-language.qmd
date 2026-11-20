@@ -1,0 +1,329 @@
+---
+title: "Chapter 1: Hardware Description Language"
+subtitle: "Computer Architecture Laboratory, LAB3114"
+---
+
+<!--
+  Source: source pages 3-10 (chapter 1 text, Examples 3.1-3.5, Figures 3.37 and 3.39).
+  Figures: 3.37 (section 1.1), 3.39 (section 1.3). Tables: none.
+  Code placeholders: 4 examples / 5 code blocks.
+  Instructor-review items for this chapter are listed in instructor-review.md.
+-->
+
+::: {.lab-objectives}
+**Learning objectives**
+
+- Explain what a hardware description language (HDL) is and why circuits are simulated before they are built.
+- Name the main steps of an HDL-based design flow.
+- Read a basic Verilog module: keywords, identifiers, ports, wires, and gate instances.
+- Describe combinational logic with Boolean expressions.
+- Define a user-defined primitive (UDP) from a truth table.
+:::
+
+## Chapter Overview {#overview}
+
+<!-- Unnumbered lead-in text that precedes section 1.1 in the source (pages 3-5). -->
+
+### Why use an HDL?
+
+Manual design methods work only for small circuits. Practical circuits are designed with computer-based tools. Combined with a correct-by-construction methodology, these tools make the most of the designer's creativity and effort and reduce the risk of a flawed design.
+
+Prototype integrated circuits are too expensive and slow to build. Modern design tools therefore rely on an HDL to **describe, design, and test** a circuit in software before it is manufactured.
+
+### What is an HDL?
+
+A **hardware description language** (HDL) is a computer-based language that describes the hardware of digital systems in textual form. It resembles an ordinary programming language such as C, but it is oriented to hardware structures and the behavior of logic circuits.
+
+An HDL can represent:
+
+- logic diagrams,
+- truth tables,
+- Boolean expressions, and
+- complex abstractions of the behavior of a digital system.
+
+One useful view: an HDL describes the **relationship between the signals that are inputs to a circuit and the signals that are its outputs**. An HDL description of an AND gate, for example, describes how the gate's output value is determined by the values of its inputs.
+
+An HDL is also a **documentation language**. Its descriptions can be read by both humans and computers, serve as an exchange language between designers, and can be stored, retrieved, edited, transmitted, and processed by software efficiently.
+
+### Where HDLs are used in the design flow
+
+HDLs are used in several major steps of integrated-circuit design:
+
+| Step | What it does |
+|:--|:--|
+| Design entry | Creates an HDL description of the functionality to be implemented in hardware. |
+| Functional simulation (verification) | Shows how the described circuit behaves, before it is fabricated. |
+| Logic synthesis | Derives a netlist of physical components and interconnections from the HDL model. |
+| Timing verification | Confirms that the fabricated circuit will run at the specified speed. |
+| Fault simulation | Finds input patterns that tell a faulty circuit from a fault-free one. |
+
+**Design entry.** Depending on the HDL, the description can take several forms: Boolean logic equations, truth tables, a netlist of interconnected gates, or an abstract behavioral model. An HDL model may also represent one partition of a larger circuit, divided into smaller interconnected and interacting functional units.
+
+**Logic simulation.** A simulator interprets the HDL description and either produces readable output (such as a time-ordered sequence of input and output values) or displays waveforms. Simulation detects functional errors without physically building and operating the circuit. Errors are corrected by modifying the HDL statements.
+
+::: {.callout-note}
+## Key Concept: Test bench
+
+The **stimulus** (the logic values applied to a circuit's inputs) that tests the functionality of a design is called a **test bench**. A test bench is also written in the HDL.
+
+To simulate a digital system, first describe the design in an HDL, then verify it by simulating it and checking it with a test bench. Formal mathematical methods can prove that a circuit is correct, but they are more complex; this course focuses on simulation.
+:::
+
+**Logic synthesis.** Synthesis derives a list of physical components and their interconnections, called a **netlist**, from the HDL model. The netlist can be used to fabricate an integrated circuit or to lay out a printed circuit board.
+
+- Synthesis is similar to compiling a program in a high-level language, except that it produces a database describing the elements and structure of a circuit instead of object code.
+- It is based on formal, exact procedures and covers the part of digital design that can be automated.
+- Today's large, complex circuits are possible because of logic synthesis software.
+
+**Timing verification.** Every logic gate has a propagation delay, so a change at a circuit's input cannot instantly change its output. Propagation delays limit how fast a circuit can operate. Timing verification checks each signal path against these delays. It runs after synthesis has specified the actual devices and before the circuit is released for production.
+
+**Fault simulation.** In VLSI design, fault simulation compares the behavior of an ideal circuit with that of a circuit containing a process-induced flaw (for example, dust or other particles in the clean room). It identifies input stimuli, called test patterns, that reveal the difference. These patterns are used to test fabricated devices so only good devices ship. Test generation and fault simulation may happen at different steps, but always before production, so the circuit's internal logic can be tested.
+
+### Why Verilog?
+
+Two HDLs are public standards supported by the IEEE: **VHDL** and **Verilog**.
+
+- **VHDL** was mandated by the U.S. Department of Defense. The V stands for VHSIC, an acronym for *very high speed integrated circuit*.
+- **Verilog** began as a proprietary HDL of Cadence Design Systems. Cadence transferred control to Open Verilog International (OVI), a consortium of companies and universities, as a step toward IEEE standardization.
+
+VHDL is more difficult to learn. Verilog is easier to describe, learn, and use, so it is the language of this course.
+
+The Verilog examples also introduce a general **design methodology**: computer-aided modeling of digital systems with a typical HDL. The emphasis is on modeling, verification, and synthesis (both manual and automated) of Verilog models of circuits with specified behavior.
+
+Verilog was first approved as a standard HDL in **1995**; revised versions were approved in **2001** and **2005**. The course covers only the Verilog features, including those in the latest standard, that support HDL-based design of integrated circuits.
+
+## 1.1 Module Declaration {#module-declaration}
+
+### Basic language rules
+
+The Verilog language reference manual defines precisely which constructs are legal. A Verilog model is written with **keywords**, of which there are about 100. Keywords are predefined, lowercase identifiers that define language constructs. Examples: `module`, `endmodule`, `input`, `output`, `wire`, `and`, `or`, `not`.
+
+<!-- TODO(instructor): the source text prints "end-module" (a hyphenation artifact); the code listing shows the keyword endmodule. This handbook uses endmodule throughout. -->
+
+- **Comments.** Text from `//` to the end of the line is a comment. Multiline comments begin with `/*` and end with `*/`. Comments have no effect on simulation.
+- **White space** is ignored, but it may not appear inside a keyword, a user-defined identifier, an operator, or a number.
+- **Case sensitivity.** Uppercase and lowercase letters are different (`not` is not the same as `NOT`).
+- **Keywords in this handbook.** They are highlighted in code examples for clarity; highlighting is not a language requirement.
+
+A **module** is the text enclosed by the keyword pair `module` ... `endmodule`. It is the fundamental descriptive unit of Verilog: it is declared with `module` and must always end with `endmodule`.
+
+Combinational logic can be described by a schematic connection of gates, a set of Boolean equations, or a truth table. Verilog supports all three styles. We start with a gate-level description of the circuit in Figure 3.37.
+
+::: {.lab-figure .lab-figure-md}
+![**Figure 3.37.** Circuit to demonstrate an HDL](../figures/figure-3.37.png){fig-alt="Schematic with inputs A, B, and C. AND gate G1 takes A and B and drives internal wire w1. Inverter G2 takes C and drives output E. OR gate G3 takes w1 and E and drives output D."}
+:::
+
+### Reading the first example
+
+::: {.lab-example}
+::: {.lab-example-head}
+[HDL Example 3.1]{.lab-example-id} Combinational logic modeled with primitives
+:::
+
+Describes the circuit of Figure 3.37 as a module that instantiates three primitive gates.
+
+```verilog
+// HDL Example 3.1 (combinational logic modeled with primitives)
+module Simple_Circuit (A, B, C, D, E);
+  output D, E;
+  input  A, B, C;
+  wire   w1;
+
+  and G1 (w1, A, B);   // Optional gate instance name
+  not G2 (E, C);
+  or  G3 (D, w1, E);
+endmodule
+```
+:::
+
+The example has the following parts, in order:
+
+1. An optional **comment** line that helps the reader.
+2. The `module` line, which starts the declaration. `module` is followed by a **name** and a **port list**.
+3. **Direction declarations** (`input`, `output`) saying which ports are inputs and which are outputs.
+4. A **wire** declaration for each internal connection. This circuit has one: the connection `w1`.
+5. **Gate instantiations** that give the structure of the circuit.
+6. `endmodule`.
+
+**Identifiers** are names given to modules, variables (such as signals), and other language elements so they can be referenced in the design. The module in this example is named `Simple_Circuit`. Choose meaningful names. Identifiers:
+
+- are made of alphanumeric characters and the underscore (`_`),
+- are case sensitive,
+- must start with a letter or an underscore, and
+- cannot start with a digit.
+
+**Port list.** The ports are the interface between the module and its environment. Here they are the circuit's inputs and outputs. The environment sets the input values; the outputs are determined inside the circuit by the action of the inputs. The list is enclosed in parentheses, its elements are separated by commas, and the statement ends with a semicolon (`;`).
+
+**Gate instances.** The structure of the circuit is a list of predefined primitive gates (`and`, `not`, `or`). Each listing is a **gate instantiation**, and each resulting gate is a **gate instance**. An instantiation has:
+
+- an optional instance name (G1, G2, ...),
+- followed by the gate output and inputs, separated by commas and enclosed in parentheses.
+
+For example, the OR gate of the schematic is the `or` primitive named G3, with output D and inputs w1 and E.
+
+::: {.callout-important}
+## Important Note: Port order and semicolons
+
+- The **output of a primitive is always listed first**, followed by its inputs. (The ports of a *module* may be listed in any order.)
+- Every statement ends with a semicolon, but there is **no semicolon after `endmodule`**.
+:::
+
+::: {.callout-note}
+## Key Concept: Declaration versus instantiation
+
+A Verilog module is **declared**. Its declaration specifies the input-output behavior of the hardware it represents.
+
+Predefined primitives are **not declared**, because the language defines them and users cannot change them. Primitives are **instantiated** (used), just as gates are used to populate a printed circuit board. Once a module has been declared, it can also be instantiated inside other designs.
+:::
+
+::: {.callout-tip}
+## Remember: A Verilog model describes, it does not compute
+
+`Simple_Circuit` is not a computational model like a program in an ordinary language. The order of its statements does not specify a sequence of computation. The model states **which primitives form the circuit and how they are connected**. Because the behavior of every gate is defined, the input-output behavior follows implicitly, and the model can be simulated.
+:::
+
+## 1.2 Boolean Expressions {#boolean-expressions}
+
+Boolean equations describing combinational logic are written in Verilog as a **continuous assignment**: the keyword `assign` followed by a Boolean expression.
+
+Verilog uses these symbols so logical operators are distinct from arithmetic operators:
+
+| Symbol | Logic operation |
+|:-:|:--|
+| `&` | AND |
+| <code>&#124;</code> | OR |
+| `~` | NOT (complement) |
+
+The circuit of Figure 3.37 can be written with a single Boolean expression:
+
+::: {.lab-example}
+::: {.lab-example-head}
+Figure 3.37 as a Boolean expression
+:::
+
+Shows one `assign` statement that describes the same circuit as Example 3.1.
+
+```verilog
+assign D = (A & B) | ~C;
+```
+:::
+
+The next example describes a circuit with two outputs, specified by these Boolean equations:
+
+- E = A + BC + B'D
+- F = B'C + BC'D'
+
+::: {.lab-example}
+::: {.lab-example-head}
+[HDL Example 3.4]{.lab-example-id} Combinational circuit modeled with Boolean equations
+:::
+
+Uses two `assign` statements to define outputs E and F from inputs A, B, C, and D.
+
+```verilog
+// HDL Example 3.4 (combinational logic modeled with Boolean equations)
+module Circuit_Boolean_CA (E, F, A, B, C, D);
+  output E, F;
+  input  A, B, C, D;
+
+  assign E = A | (B & C) | (~B & D);
+  assign F = (~B & C) | (B & ~C & ~D);
+endmodule
+```
+:::
+
+The circuit has four inputs (A, B, C, D) and two outputs (E, F). The two `assign` statements describe the Boolean equations. During simulation, the values of E and F are determined **dynamically** by the values of A, B, C, and D: when the test bench changes one or more inputs, the simulator updates E and F.
+
+::: {.callout-note}
+## Key Concept: Continuous assignment
+
+The assignment is called *continuous* because the relationship between the assigned value and the variable is **permanent**. A continuous assignment behaves like combinational logic and has a gate-level equivalent circuit. It is also called **implicit combinational logic**.
+:::
+
+So far, a digital circuit has been described with HDL statements, a circuit diagram, and a Boolean expression. A third alternative is a **truth table**, covered next.
+
+## 1.3 User-Defined Primitives {#user-defined-primitives}
+
+The gates `and`, `or`, and so on are defined by the system and are called **system primitives**. Other languages may use these words differently.
+
+Users can create additional primitives by defining them in tabular form. These are **user-defined primitives (UDPs)**. One way to specify a circuit in tabular form is a truth table. A UDP does not use `module` ... `endmodule`; it is declared with the keyword pair `primitive` ... `endprimitive`.
+
+### Rules for a combinational UDP
+
+1. It is declared with `primitive`, followed by a name and a port list.
+2. There can be **only one output**. It must be listed **first** in the port list and declared with `output`.
+3. There can be any number of inputs. The order in which they appear in the `input` declaration must match the order in which they get values in the table.
+4. The truth table is enclosed between the keywords `table` and `endtable`.
+5. In each row, the input values are listed in order and end with a colon (`:`). The output is the **last** entry in the row and is followed by a semicolon (`;`).
+6. The declaration ends with `endprimitive`.
+
+The variable names written above the table are only a comment, for clarity. The system recognizes each variable by its position in the `input` declaration.
+
+### Example: a UDP and a circuit that uses it
+
+::: {.lab-example}
+::: {.lab-example-head}
+[HDL Example 3.5]{.lab-example-id} User-defined primitive and a circuit that instantiates it
+:::
+
+Defines a UDP from a truth table, then instantiates it, together with an `and` gate, in a module.
+
+[UDP declaration]{.lab-code-label}
+
+```verilog
+// HDL Example 3.5
+// Verilog model: User-defined primitive
+primitive UDP_02467 (D, A, B, C);
+  output D;
+  input  A, B, C;
+
+  // Truth table for D = f(A, B, C) = sum of minterms (0, 2, 4, 6, 7)
+  table
+  //  A  B  C  :  D      // Column header comment
+      0  0  0  :  1;
+      0  0  1  :  0;
+      0  1  0  :  1;
+      0  1  1  :  0;
+      1  0  0  :  1;
+      1  0  1  :  0;
+      1  1  0  :  1;
+      1  1  1  :  1;
+  endtable
+endprimitive
+```
+
+[Module that instantiates the UDP]{.lab-code-label}
+
+```verilog
+// Verilog model: Circuit instantiation of UDP_02467
+module Circuit_with_UDP_02467 (e, f, a, b, c, d);
+  output e, f;
+  input  a, b, c, d;
+
+  UDP_02467 (e, a, b, c);
+  and       (f, e, d);   // Optional gate instance name omitted
+endmodule
+```
+:::
+
+The UDP implements the function f(A, B, C) = Σ(0, 2, 4, 6, 7): the output is 1 for those minterms and 0 otherwise. A user-defined primitive can be instantiated inside other modules just like a system primitive. The module `Circuit_with_UDP_02467` produces the hardware shown in Figure 3.39.
+
+::: {.lab-figure .lab-figure-md}
+![**Figure 3.39.** Schematic for `Circuit_with_UDP_02467`](../figures/figure-3.39.png){fig-alt="Block diagram. A box labeled UDP_02467 takes inputs A, B, and C and produces output E. Output E also feeds a two-input AND gate whose other input is D. The AND gate output is F."}
+:::
+
+### More about UDPs
+
+- Verilog uses tabular descriptions for UDPs only. Other HDLs and computer-aided design (CAD) systems use other procedures to specify circuits in tabular form. CAD software can process such tables to derive an efficient gate structure.
+- **None of Verilog's predefined primitives describes sequential logic.** A sequential UDP must declare its output as `reg`, and its table gets an extra column for the next state. The columns are organized as **inputs : state : next state**.
+
+## Chapter Summary
+
+- An HDL describes digital hardware as text and supports design entry, simulation, synthesis, timing verification, and fault simulation.
+- A test bench supplies the input stimulus for simulation and is itself written in the HDL.
+- A Verilog **module** (`module` ... `endmodule`) has a name, a port list, direction declarations, internal wires, and gate or other statements.
+- Primitives are **instantiated**; modules are **declared**. The output of a primitive is listed first.
+- Boolean equations use `assign` with `&`, `|`, `~`, and the assignment stays active for the whole simulation.
+- A UDP describes a circuit by a truth table inside `primitive` ... `endprimitive`.
+
+Next: [Chapter 2](02-combinational-circuit-models.qmd) compares gate-level, dataflow, and behavioral models of combinational circuits.
