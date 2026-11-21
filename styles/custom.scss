@@ -279,19 +279,19 @@ div.callout.callout-style-simple.callout-warning .callout-title-container   { co
 .lab-chapter ul { columns: 2 16rem; margin: 0.5rem 0 0; padding-left: 1.1rem; font-size: 0.97rem; }
 .lab-chapter p { margin-bottom: 0.4rem; }
 
-/* ---------- Tooltips (e.g. "Copied!"): white text on a dark box in both themes ---------- */
-.tippy-box,
-.tippy-box[data-theme~="quarto"],
-.tooltip .tooltip-inner {
-  background-color: #10161c !important;
-  color: #ffffff !important;
-  border: 1px solid #3b4a58 !important;
-  font-family: var(--bs-font-sans-serif);
+/* ---------- Code copy notification ---------- */
+.code-copy-button-tooltip {
+  --bs-tooltip-bg: var(--lab-copy-toast-bg);
+  --bs-tooltip-color: var(--lab-copy-toast-text);
+  --bs-tooltip-opacity: 1;
 }
-.tippy-box *,
-.tippy-box .tippy-content,
-.tooltip .tooltip-inner { color: #ffffff !important; }
-.tippy-box > .tippy-arrow::before { color: #10161c !important; }
+.code-copy-button-tooltip .tooltip-inner {
+  font-family: var(--bs-font-sans-serif);
+  font-size: 0.8rem;
+  font-weight: 500;
+  border-radius: 0.45rem;
+  padding: 0.25rem 0.5rem;
+}
 
 /* ---------- Navbar tools: consistent icon size ---------- */
 .quarto-navbar-tools .bi { font-size: 1.2rem; }
