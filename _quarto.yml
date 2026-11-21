@@ -10,6 +10,7 @@ project:
 website:
   title: "LAB3114"
   description: "Computer Architecture Laboratory: Hardware Description Languages and Verilog"
+  site-url: "https://vesalbargi.github.io/verilog-hdl-handbook/"
   favicon: assets/favicon.svg
   page-navigation: true
   back-to-top-navigation: true
@@ -22,7 +23,7 @@ website:
     title: "Verilog HDL Handbook"
     tools:
       - icon: github
-        href: https://github.com/vesalbargi/verilog-hdl-handbook.git
+        href: https://github.com/vesalbargi/verilog-hdl-handbook
         target: _blank
   sidebar:
     style: docked
@@ -32,9 +33,12 @@ website:
         text: Home
       - section: "Chapters"
         contents:
-          - chapters/01-hardware-description-language.qmd
-          - chapters/02-combinational-circuit-models.qmd
-          - chapters/03-sequential-circuit-models.qmd
+          - href: chapters/01-hardware-description-language.qmd
+            text: "Chapter 1"
+          - href: chapters/02-combinational-circuit-models.qmd
+            text: "Chapter 2"
+          - href: chapters/03-sequential-circuit-models.qmd
+            text: "Chapter 3"
   page-footer:
     center: "Computer Architecture Laboratory | LAB3114"
 

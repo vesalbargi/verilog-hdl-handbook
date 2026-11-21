@@ -303,6 +303,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--lab-accent); ou
 
 /* ---------- Small screens ---------- */
 @media (max-width: 575.98px) {
+  .navbar-brand { display: none; }
   .lab-figure img { padding: 0.6rem; }
   .lab-example-head { padding: 0.6rem 0.75rem; }
   .lab-example > p, .lab-example .lab-code-label { margin-left: 0.75rem; margin-right: 0.75rem; }
