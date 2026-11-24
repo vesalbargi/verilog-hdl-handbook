@@ -48,6 +48,8 @@ body { background: var(--lab-bg); color: var(--lab-text); }
   border-radius: 0.3rem;
   padding: 0.05em 0.35em;
   font-size: 0.86em;
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0, "calt" 0;
 }
 
 #quarto-document-content hr { border-color: var(--lab-border); opacity: 1; }
@@ -125,6 +127,8 @@ div.callout.callout-style-simple.callout-warning .callout-title-container   { co
   font-family: var(--bs-font-monospace);
   font-size: 0.86rem;
   line-height: 1.65;
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0, "calt" 0;
 }
 #quarto-document-content pre.sourceCode { overflow-x: auto; }
 
