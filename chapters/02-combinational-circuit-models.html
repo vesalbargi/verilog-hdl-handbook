@@ -1,0 +1,2154 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.11.9">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Chapter 2: HDL Models of Combinational Circuits – LAB3114</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../chapters/03-sequential-circuit-models.html" rel="next">
+<link href="../chapters/01-hardware-description-language.html" rel="prev">
+<link href="../assets/favicon.svg" rel="icon" type="image/svg+xml">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/scrollable-regions/scrollable-regions.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-4c2e2814ce9a857492911c1eaac7bc64.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-7191fb07fbc61ba70e96a6186d89682a.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-4c2e2814ce9a857492911c1eaac7bc64.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-150f6e08a313be43782d932bfb7aa735.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-682cfce0fad481e7ee3e1723f0110cde.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-150f6e08a313be43782d932bfb7aa735.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;display=swap" rel="stylesheet">
+
+
+
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light"><a id="quarto-skip-link" class="visually-hidden-focusable" href="#quarto-document-content">Skip to main content</a><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          toggle.setAttribute("aria-checked", alternate ? "true" : "false");
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455).
+    // Not run on load: stylesheets are set before first paint there, and
+    // scrolling would undo the scroll to a URL fragment (#14973).
+    // The one pixel nudge keeps the reader where they were.
+    const refreshSafariScrollbar = () => {
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        const scrollY = window.scrollY;
+        window.scrollTo(0, scrollY > 0 ? scrollY - 1 : 1);
+        setTimeout(() => {
+          window.scrollTo(0, scrollY);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const queryPrefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+    const darkModeDefault = queryPrefersDark.matches;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      refreshSafariScrollbar();
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    queryPrefersDark.addEventListener("change", e => {
+      if(window.localStorage.getItem("quarto-color-scheme") !== null)
+        return;
+      const alternate = e.matches
+      toggleColorMode(alternate);
+      refreshSafariScrollbar();
+      localAlternateSentinel = e.matches ? 'alternate' : 'default'; // this is used alongside local storage!
+      toggleGiscusIfUsed(alternate, darkModeDefault);
+    });
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark" aria-label="Site">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Verilog HDL Handbook</span>
+    </a>
+  </div>
+        <div class="quarto-navbar-tools tools-end">
+    <a href="https://github.com/vesalbargi/verilog-hdl-handbook" title="" class="quarto-navigation-tool px-1" aria-label="" target="_blank"><i class="bi bi-github"></i></a>
+  <button type="button" role="switch" aria-checked="false" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode" aria-label="Toggle dark mode"><i class="bi"></i></button>
+</div>
+          <div id="quarto-search" class="" title="Search"></div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav" aria-label="Toolbar">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <a class="flex-grow-1 no-decor" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+          <h1 class="quarto-secondary-nav-title">Chapter 2: HDL Models of Combinational Circuits</h1>
+        </a>     
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto" aria-label="Section">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Home</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-controls="quarto-sidebar-section-1" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-1-label">Chapters</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-1" aria-labelledby="quarto-sidebar-section-1-label" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/01-hardware-description-language.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 1</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/02-combinational-circuit-models.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Chapter 2</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/03-sequential-circuit-models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 3</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" aria-labelledby="toc-title" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#modeling-styles" id="toc-modeling-styles" class="nav-link active" data-scroll-target="#modeling-styles">Modeling styles</a></li>
+  <li><a href="#gate-level-modeling" id="toc-gate-level-modeling" class="nav-link" data-scroll-target="#gate-level-modeling">2.1 Gate-level Modeling</a>
+  <ul class="collapse">
+  <li><a href="#primitive-gates" id="toc-primitive-gates" class="nav-link" data-scroll-target="#primitive-gates">Primitive gates</a></li>
+  <li><a href="#four-valued-logic" id="toc-four-valued-logic" class="nav-link" data-scroll-target="#four-valued-logic">Four-valued logic</a></li>
+  <li><a href="#instantiating-primitives" id="toc-instantiating-primitives" class="nav-link" data-scroll-target="#instantiating-primitives">Instantiating primitives</a></li>
+  <li><a href="#vectors" id="toc-vectors" class="nav-link" data-scroll-target="#vectors">Vectors</a></li>
+  <li><a href="#example-two-to-four-line-decoder" id="toc-example-two-to-four-line-decoder" class="nav-link" data-scroll-target="#example-two-to-four-line-decoder">Example: two-to-four-line decoder</a></li>
+  <li><a href="#hierarchical-design-ripple-carry-adder" id="toc-hierarchical-design-ripple-carry-adder" class="nav-link" data-scroll-target="#hierarchical-design-ripple-carry-adder">Hierarchical design: ripple-carry adder</a></li>
+  </ul></li>
+  <li><a href="#three-state-gates" id="toc-three-state-gates" class="nav-link" data-scroll-target="#three-state-gates">2.2 Three-State Gates</a>
+  <ul class="collapse">
+  <li><a href="#several-drivers-on-one-line" id="toc-several-drivers-on-one-line" class="nav-link" data-scroll-target="#several-drivers-on-one-line">Several drivers on one line</a></li>
+  <li><a href="#nets" id="toc-nets" class="nav-link" data-scroll-target="#nets">Nets</a></li>
+  </ul></li>
+  <li><a href="#dataflow-modeling" id="toc-dataflow-modeling" class="nav-link" data-scroll-target="#dataflow-modeling">2.3 Dataflow Modeling</a>
+  <ul class="collapse">
+  <li><a href="#continuous-assignments-and-nets" id="toc-continuous-assignments-and-nets" class="nav-link" data-scroll-target="#continuous-assignments-and-nets">Continuous assignments and nets</a></li>
+  <li><a href="#dataflow-versions-of-earlier-examples" id="toc-dataflow-versions-of-earlier-examples" class="nav-link" data-scroll-target="#dataflow-versions-of-earlier-examples">Dataflow versions of earlier examples</a></li>
+  <li><a href="#comparator-and-multiplexer" id="toc-comparator-and-multiplexer" class="nav-link" data-scroll-target="#comparator-and-multiplexer">Comparator and multiplexer</a></li>
+  </ul></li>
+  <li><a href="#behavioral-modeling" id="toc-behavioral-modeling" class="nav-link" data-scroll-target="#behavioral-modeling">2.4 Behavioral Modeling</a>
+  <ul class="collapse">
+  <li><a href="#two-to-one-line-multiplexer" id="toc-two-to-one-line-multiplexer" class="nav-link" data-scroll-target="#two-to-one-line-multiplexer">Two-to-one-line multiplexer</a></li>
+  <li><a href="#four-to-one-line-multiplexer" id="toc-four-to-one-line-multiplexer" class="nav-link" data-scroll-target="#four-to-one-line-multiplexer">Four-to-one-line multiplexer</a></li>
+  <li><a href="#implicit-sensitivity-list" id="toc-implicit-sensitivity-list" class="nav-link" data-scroll-target="#implicit-sensitivity-list">Implicit sensitivity list</a></li>
+  <li><a href="#writing-numbers" id="toc-writing-numbers" class="nav-link" data-scroll-target="#writing-numbers">Writing numbers</a></li>
+  <li><a href="#casex-casez-and-default" id="toc-casex-casez-and-default" class="nav-link" data-scroll-target="#casex-casez-and-default"><code>casex</code>, <code>casez</code>, and <code>default</code></a></li>
+  </ul></li>
+  <li><a href="#chapter-summary" id="toc-chapter-summary" class="nav-link" data-scroll-target="#chapter-summary">Chapter Summary</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content" tabindex="-1">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title d-none d-lg-block">Chapter 2: HDL Models of Combinational Circuits</h1>
+<p class="subtitle lead">Computer Architecture Laboratory, LAB3114</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<!--
+  Source: source pages 10-23.
+  Figures: 4.19, 4.5, 4.8, 4.9 (section 2.1), 4.31 and 4.32 (section 2.2). Tables: 4.9 (section 2.1), 4.10 (section 2.3).
+  Code placeholders: 13 examples / 15 code blocks.
+  Instructor-review items for this chapter are listed in instructor-review.md.
+-->
+<div class="lab-objectives">
+<p><strong>Learning objectives</strong></p>
+<ul>
+<li>Compare the three modeling styles for combinational logic: gate-level, dataflow, and behavioral.</li>
+<li>Use the four-valued logic system (0, 1, x, z) and read the primitive-gate truth tables.</li>
+<li>Build a hierarchical design by instantiating modules inside other modules.</li>
+<li>Model three-state gates and shared (multiple-driver) nets.</li>
+<li>Write continuous assignments with Verilog operators, including concatenation and the conditional operator.</li>
+<li>Write simple behavioral models with <code>always</code>, <code>if-else</code>, and <code>case</code>.</li>
+</ul>
+</div>
+<section id="modeling-styles" class="level2">
+<h2 class="anchored" data-anchor-id="modeling-styles">Modeling styles</h2>
+<!-- Unnumbered lead-in text that precedes section 2.1 in the source (page 10). -->
+<p>The module is the basic building block for modeling hardware in Verilog. The logic of a module can be described in any one of the following styles, or in a combination of them:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Style</th>
+<th style="text-align: left;">Describes the circuit with</th>
+<th style="text-align: left;">Keyword</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Gate-level</td>
+<td style="text-align: left;">Instances of predefined and user-defined primitive gates, and how they connect</td>
+<td style="text-align: left;">gate names such as <code>and</code>, <code>or</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Dataflow</td>
+<td style="text-align: left;">Continuous assignment statements, mostly Boolean equations</td>
+<td style="text-align: left;"><code>assign</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Behavioral</td>
+<td style="text-align: left;">Procedural assignment statements, at a higher level of abstraction</td>
+<td style="text-align: left;"><code>always</code></td>
+</tr>
+</tbody>
+</table>
+<p>Behavioral modeling can describe both combinational and sequential circuits. A fourth style, <strong>switch-level modeling</strong>, is sometimes used to simulate MOS transistor circuits but not for logic synthesis; it is outside the scope of this chapter. Sequential circuits are presented in <a href="../chapters/03-sequential-circuit-models.html">Chapter 3</a>.</p>
+</section>
+<section id="gate-level-modeling" class="level2">
+<h2 class="anchored" data-anchor-id="gate-level-modeling">2.1 Gate-level Modeling</h2>
+<p>Gate-level modeling gives a <strong>textual description of a schematic diagram</strong>: the circuit is specified by its logic gates and their interconnections.</p>
+<section id="primitive-gates" class="level3">
+<h3 class="anchored" data-anchor-id="primitive-gates">Primitive gates</h3>
+<p>Verilog includes <strong>12 basic gates</strong> as predefined primitives:</p>
+<ul>
+<li><strong>Eight</strong> ordinary gates: <code>and</code>, <code>nand</code>, <code>or</code>, <code>nor</code>, <code>xor</code>, <code>xnor</code>, <code>not</code>, <code>buf</code>.</li>
+<li><strong>Four</strong> three-state gates (see <a href="#three-state-gates">2.2</a>).</li>
+</ul>
+<p>All are written with lowercase keywords. The gates <code>and</code>, <code>nand</code>, <code>or</code>, <code>nor</code>, <code>xor</code>, and <code>xnor</code> are <strong>n-input</strong> primitives: they can have any number of scalar inputs (for example, a three-input <code>and</code>). The <code>buf</code> and <code>not</code> primitives are <strong>n-output</strong> primitives: a single input can drive several output lines, each with its own identifier.</p>
+</section>
+<section id="four-valued-logic" class="level3">
+<h3 class="anchored" data-anchor-id="four-valued-logic">Four-valued logic</h3>
+<p>Each gate has a functional description based on a <strong>four-valued system</strong>. At any instant, the simulator assigns one of these values to a gate output:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: center;">Value</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><code>0</code></td>
+<td style="text-align: left;">Logic 0</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><code>1</code></td>
+<td style="text-align: left;">Logic 1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><code>x</code></td>
+<td style="text-align: left;">Unknown</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><code>z</code></td>
+<td style="text-align: left;">High impedance</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>An <strong>unknown</strong> value (<code>x</code>) is assigned when a signal’s value is ambiguous, for example when it cannot be determined whether it is 0 or 1 (such as a flip-flop without a reset condition).</li>
+<li>A <strong>high-impedance</strong> value (<code>z</code>) occurs at the output of a three-state gate that is not enabled, or on a wire that was left unconnected by mistake.</li>
+</ul>
+<p>Table 4.9 gives the four-valued truth tables for <code>and</code>, <code>or</code>, <code>xor</code>, and <code>not</code>. The truth table for the other four gates is the same, except that the outputs are complemented.</p>
+<div class="lab-table-block">
+<div class="lab-table-title">
+<p>Table 4.9: Truth Tables for Predefined Primitive Gates</p>
+</div>
+<div class="truth-grid">
+<div class="truth-card">
+<p><strong>AND</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: center;"></th>
+<th style="text-align: center;">0</th>
+<th style="text-align: center;">1</th>
+<th style="text-align: center;">x</th>
+<th style="text-align: center;">z</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">x</td>
+<td style="text-align: center;">x</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">x</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">x</td>
+<td style="text-align: center;">x</td>
+<td style="text-align: center;">x</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">z</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">x</td>
+<td style="text-align: center;">x</td>
+<td style="text-align: center;">x</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="truth-card">
+<p><strong>OR</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: center;"></th>
+<th style="text-align: center;">0</th>
+<th style="text-align: center;">1</th>
+<th style="text-align: center;">x</th>
+<th style="text-align: center;">z</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">x</td>
+<td style="text-align: center;">x</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">x</td>
+<td style="text-align: center;">x</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">x</td>
+<td style="text-align: center;">x</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">z</td>
+<td style="text-align: center;">x</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">x</td>
+<td style="text-align: center;">x</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="truth-card">
+<p><strong>XOR</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: center;"></th>
+<th style="text-align: center;">0</th>
+<th style="text-align: center;">1</th>
+<th style="text-align: center;">x</th>
+<th style="text-align: center;">z</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">x</td>
+<td style="text-align: center;">x</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">x</td>
+<td style="text-align: center;">x</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">x</td>
+<td style="text-align: center;">x</td>
+<td style="text-align: center;">x</td>
+<td style="text-align: center;">x</td>
+<td style="text-align: center;">x</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">z</td>
+<td style="text-align: center;">x</td>
+<td style="text-align: center;">x</td>
+<td style="text-align: center;">x</td>
+<td style="text-align: center;">x</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="truth-card">
+<p><strong>NOT</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: center;">Input</th>
+<th style="text-align: center;">Output</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">x</td>
+<td style="text-align: center;">x</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">z</td>
+<td style="text-align: center;">x</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="callout callout-style-simple callout-tip no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Remember: Reading the AND and OR tables
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>AND:</strong> the output is 1 only when both inputs are 1. It is 0 if <em>any</em> input is 0. Otherwise (an input is <code>x</code> or <code>z</code>), it is <code>x</code>.</li>
+<li><strong>OR:</strong> the output is 0 only when both inputs are 0. It is 1 if <em>any</em> input is 1. Otherwise, it is <code>x</code>.</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="instantiating-primitives" class="level3">
+<h3 class="anchored" data-anchor-id="instantiating-primitives">Instantiating primitives</h3>
+<p>When a primitive gate is listed in a module, it is <strong>instantiated</strong> in that module. In general, component instantiations are statements that reference lower-level components, creating unique copies (instances) of them in the higher-level module. Think of instantiation as the HDL counterpart of <strong>placing and connecting parts on a circuit board</strong>.</p>
+</section>
+<section id="vectors" class="level3">
+<h3 class="anchored" data-anchor-id="vectors">Vectors</h3>
+<p>Identifiers with several bits are called <strong>vectors</strong>. A vector is declared with a range in square brackets: two numbers separated by a colon.</p>
+<div class="lab-example">
+<div class="lab-example-head">
+<p>Vector declarations</p>
+</div>
+<p>Declares a four-bit output vector <code>D</code> (bits 0 through 3) and an eight-bit wire vector <code>SUM</code> (bits 7 through 0).</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode verilog code-with-copy"><code class="sourceCode verilog"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">output</span> <span class="op">[</span><span class="dv">0</span><span class="op">:</span><span class="dv">3</span><span class="op">]</span> D<span class="op">;</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="dt">wire</span> <span class="op">[</span><span class="dv">7</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span> SUM<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ul>
+<li>The <strong>leftmost number in the range is always the most significant bit</strong> of the vector.</li>
+<li>A single bit is selected with square brackets: <code>D[2]</code> is bit 2 of <code>D</code>.</li>
+<li>A contiguous part of a vector can be selected too: <code>SUM[2:0]</code> is the three least significant bits of <code>SUM</code>.</li>
+</ul>
+</section>
+<section id="example-two-to-four-line-decoder" class="level3">
+<h3 class="anchored" data-anchor-id="example-two-to-four-line-decoder">Example: two-to-four-line decoder</h3>
+<p>Figure 4.19 shows the circuit modeled in Example 4.1.</p>
+<div class="lab-figure lab-figure-md">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../figures/figure-4.19.png" class="img-fluid figure-img" alt="Logic diagram of a two-to-four-line decoder with data inputs A and B, an enable input, and four outputs."></p>
+<figcaption><strong>Figure 4.19.</strong> Two-to-four-line decoder with enable input</figcaption>
+</figure>
+</div>
+</div>
+<div class="lab-example">
+<div class="lab-example-head">
+<p><span class="lab-example-id">HDL Example 4.1</span> Gate-level two-to-four-line decoder</p>
+</div>
+<p>Uses three <code>not</code> gates and four <code>nand</code> gates to build a decoder with data inputs A and B, an enable input, and a four-bit output vector D.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode verilog code-with-copy"><code class="sourceCode verilog"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">// HDL Example 4.1</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co">// Gate-level description of two-to-four-line decoder</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co">// Refer to Fig. 4.19 with symbol E replaced by enable, for clarity.</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> decoder_2x4_gates <span class="op">(</span>D<span class="op">,</span> A<span class="op">,</span> B<span class="op">,</span> enable<span class="op">);</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">output</span> <span class="op">[</span><span class="dv">0</span><span class="op">:</span><span class="dv">3</span><span class="op">]</span> D<span class="op">;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">input</span>        A<span class="op">,</span> B<span class="op">;</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">input</span>        enable<span class="op">;</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">wire</span>         A_not<span class="op">,</span> B_not<span class="op">,</span> enable_not<span class="op">;</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">not</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    G1 <span class="op">(</span>A_not<span class="op">,</span> A<span class="op">),</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    G2 <span class="op">(</span>B_not<span class="op">,</span> B<span class="op">),</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    G3 <span class="op">(</span>enable_not<span class="op">,</span> enable<span class="op">);</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="dt">nand</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    G4 <span class="op">(</span>D<span class="op">[</span><span class="dv">0</span><span class="op">],</span> A_not<span class="op">,</span> B_not<span class="op">,</span> enable_not<span class="op">),</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    G5 <span class="op">(</span>D<span class="op">[</span><span class="dv">1</span><span class="op">],</span> A_not<span class="op">,</span> B<span class="op">,</span>     enable_not<span class="op">),</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    G6 <span class="op">(</span>D<span class="op">[</span><span class="dv">2</span><span class="op">],</span> A<span class="op">,</span>     B_not<span class="op">,</span> enable_not<span class="op">),</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    G7 <span class="op">(</span>D<span class="op">[</span><span class="dv">3</span><span class="op">],</span> A<span class="op">,</span>     B<span class="op">,</span>     enable_not<span class="op">);</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="kw">endmodule</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The decoder has two data inputs, <strong>A</strong> and <strong>B</strong>, and an <strong>enable</strong> input. The four outputs form the vector <strong>D</strong>. Internal connections are declared as wires. Three <code>not</code> gates produce the complements of the inputs, and four <code>nand</code> gates produce the outputs.</p>
+<div class="callout callout-style-simple callout-important no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Important Note: Listing several gates of one type
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The keywords <code>not</code> and <code>nand</code> are written <strong>once</strong> and are not repeated for each gate. Put a comma at the end of each gate in the series and end the <strong>last</strong> one with a semicolon. Remember that the output is always listed first in a primitive’s port list.</p>
+</div>
+</div>
+</section>
+<section id="hierarchical-design-ripple-carry-adder" class="level3">
+<h3 class="anchored" data-anchor-id="hierarchical-design-ripple-carry-adder">Hierarchical design: ripple-carry adder</h3>
+<p>Two or more modules can be combined into a <strong>hierarchical</strong> description. There are two basic design methodologies:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Methodology</th>
+<th style="text-align: left;">Order of work</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Top-down</strong></td>
+<td style="text-align: left;">Define the top-level block first, then identify the sub-blocks needed to build it.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Bottom-up</strong></td>
+<td style="text-align: left;">Identify the building blocks first, then combine them into the top-level block.</td>
+</tr>
+</tbody>
+</table>
+<p>Consider the four-bit binary adder. It is a top-level block built from four <strong>full adders</strong>, and each full adder is built from two <strong>half adders</strong> (plus some glue logic). A top-down design defines the four-bit adder first, then the full adders, then the half adders. A bottom-up design defines the half adder first, then the full adder, then the four-bit adder.</p>
+<p>HDL Example 4.2 is a <strong>bottom-up</strong> description:</p>
+<ol type="1">
+<li>The <strong>half adder</strong> is defined by instantiating primitive gates.</li>
+<li>The <strong>full adder</strong> instantiates two half adders.</li>
+<li>The <strong>four-bit adder</strong> instantiates four full adders.</li>
+</ol>
+<p>Figures 4.5, 4.8, and 4.9 show these three levels of the design.</p>
+<div class="lab-figure lab-figure-sm">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../figures/figure-4.5.png" class="img-fluid figure-img" alt="Logic diagram of a half adder."></p>
+<figcaption><strong>Figure 4.5.</strong> Implementation of half adder</figcaption>
+</figure>
+</div>
+</div>
+<div class="lab-figure lab-figure-md">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../figures/figure-4.8.png" class="img-fluid figure-img" alt="Logic diagram of a full adder built from two half adders and an OR gate."></p>
+<figcaption><strong>Figure 4.8.</strong> Implementation of full adder with two half adders and an OR gate</figcaption>
+</figure>
+</div>
+</div>
+<div class="lab-figure lab-figure-md">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../figures/figure-4.9.png" class="img-fluid figure-img" alt="Block diagram of a four-bit adder built from four full adders connected in a carry chain."></p>
+<figcaption><strong>Figure 4.9.</strong> Four-bit adder</figcaption>
+</figure>
+</div>
+</div>
+<div class="lab-example">
+<div class="lab-example-head">
+<p><span class="lab-example-id">HDL Example 4.2</span> Gate-level four-bit ripple-carry adder</p>
+</div>
+<p>Builds the adder bottom-up from three modules: a half adder, a full adder, and the four-bit ripple-carry adder.</p>
+<p><span class="lab-code-label">Module <code>half_adder</code></span></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode verilog code-with-copy"><code class="sourceCode verilog"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">// HDL Example 4.2</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co">// Gate-level description of four-bit ripple carry adder</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">// Description of half adder (Fig. 4.5b)</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Verilog 1995 syntax:</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">//   module half_adder (S, C, x, y);</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">//   output S, C;</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co">//   input  x, y;</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co">// Verilog 2001, 2005 syntax:</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> half_adder <span class="op">(</span><span class="dt">output</span> S<span class="op">,</span> C<span class="op">,</span> <span class="dt">input</span> x<span class="op">,</span> y<span class="op">);</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Instantiate primitive gates</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="dt">xor</span> <span class="op">(</span>S<span class="op">,</span> x<span class="op">,</span> y<span class="op">);</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  <span class="dt">and</span> <span class="op">(</span>C<span class="op">,</span> x<span class="op">,</span> y<span class="op">);</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="kw">endmodule</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><span class="lab-code-label">Module <code>full_adder</code></span></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode verilog code-with-copy"><code class="sourceCode verilog"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Description of full adder (Fig. 4.8)</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">// Verilog 1995 syntax:</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">//   module full_adder (S, C, x, y, z);</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co">//   output S, C;</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co">//   input  x, y, z;</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co">// Verilog 2001, 2005 syntax:</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> full_adder <span class="op">(</span><span class="dt">output</span> S<span class="op">,</span> C<span class="op">,</span> <span class="dt">input</span> x<span class="op">,</span> y<span class="op">,</span> z<span class="op">);</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">wire</span> S1<span class="op">,</span> C1<span class="op">,</span> C2<span class="op">;</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Instantiate half adders</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  half_adder HA1 <span class="op">(</span>S1<span class="op">,</span> C1<span class="op">,</span> x<span class="op">,</span> y<span class="op">);</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  half_adder HA2 <span class="op">(</span>S<span class="op">,</span> C2<span class="op">,</span> S1<span class="op">,</span> z<span class="op">);</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  <span class="dt">or</span>         G1  <span class="op">(</span>C<span class="op">,</span> C2<span class="op">,</span> C1<span class="op">);</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="kw">endmodule</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><span class="lab-code-label">Four-bit ripple-carry adder module</span></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode verilog code-with-copy"><code class="sourceCode verilog"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Description of four-bit adder (Fig. 4.9)</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">// Verilog 1995 syntax:</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">//   module ripple_carry_4_bit_adder (Sum, C4, A, B, C0);</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co">//   output [3:0] Sum;</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co">//   output       C4;</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co">//   input  [3:0] A, B;</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co">//   input        C0;</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co">// Alternative Verilog 2001, 2005 syntax:</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> ripple_carry_4_bit_adder <span class="op">(</span><span class="dt">output</span> <span class="op">[</span><span class="dv">3</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span> Sum<span class="op">,</span> <span class="dt">output</span> C4<span class="op">,</span> <span class="dt">input</span> <span class="op">[</span><span class="dv">3</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span> A<span class="op">,</span> B<span class="op">,</span> <span class="dt">input</span> C0<span class="op">);</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">wire</span> C1<span class="op">,</span> C2<span class="op">,</span> C3<span class="op">;</span>   <span class="co">// Intermediate carries</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Instantiate chain of full adders</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  full_adder FA0 <span class="op">(</span>Sum<span class="op">[</span><span class="dv">0</span><span class="op">],</span> C1<span class="op">,</span> A<span class="op">[</span><span class="dv">0</span><span class="op">],</span> B<span class="op">[</span><span class="dv">0</span><span class="op">],</span> C0<span class="op">),</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>             FA1 <span class="op">(</span>Sum<span class="op">[</span><span class="dv">1</span><span class="op">],</span> C2<span class="op">,</span> A<span class="op">[</span><span class="dv">1</span><span class="op">],</span> B<span class="op">[</span><span class="dv">1</span><span class="op">],</span> C1<span class="op">),</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>             FA2 <span class="op">(</span>Sum<span class="op">[</span><span class="dv">2</span><span class="op">],</span> C3<span class="op">,</span> A<span class="op">[</span><span class="dv">2</span><span class="op">],</span> B<span class="op">[</span><span class="dv">2</span><span class="op">],</span> C2<span class="op">),</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>             FA3 <span class="op">(</span>Sum<span class="op">[</span><span class="dv">3</span><span class="op">],</span> C4<span class="op">,</span> A<span class="op">[</span><span class="dv">3</span><span class="op">],</span> B<span class="op">[</span><span class="dv">3</span><span class="op">],</span> C3<span class="op">);</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="kw">endmodule</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Instantiation syntax.</strong> A module is instantiated by writing the name of the module followed by an instance name and a (new or the same) set of port names. For example, the half adder instance <code>HA1</code> inside the full adder is connected to <code>S1</code>, <code>C1</code>, <code>x</code>, and <code>y</code>, which produces a half adder with outputs <code>S1</code> and <code>C1</code> and inputs <code>x</code> and <code>y</code>.</p>
+<p><strong>Identifier rule.</strong> The first character of an identifier cannot be a digit, but it can be an underscore, so the module name <code>_4bitadder</code> is valid. A meaningful alternative that needs no leading underscore is <code>adder_4_bit</code>.</p>
+<p><strong>Port-declaration syntax.</strong> Example 4.2 uses the Verilog 2001/2005 style, which declares the port mode (<code>output</code>), type (<code>reg</code>), and vector range (<code>[3:0]</code>) in the module header. The 1995 standard uses separate statements for these.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: left;">Verilog 1995</th>
+<th style="text-align: left;">Verilog 2001, 2005</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Port declarations</td>
+<td style="text-align: left;">Separate <code>input</code> / <code>output</code> statements after the module header</td>
+<td style="text-align: left;">Mode, type, and range inside the header’s port list</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Typing effort</td>
+<td style="text-align: left;">More</td>
+<td style="text-align: left;">Less (no repeated identifiers)</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-simple callout-important no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Important Note: Nesting rules
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>Modules can be <strong>instantiated</strong> (nested) inside other modules.</li>
+<li>Module <strong>declarations</strong> cannot be nested: a <code>module</code> … <code>endmodule</code> definition cannot be placed between the <code>module</code> and <code>endmodule</code> keywords of another module. The only way to use one module inside another is to instantiate it.</li>
+<li><strong>Instance names are required</strong> when instantiating modules (such as <code>FA0</code>), but <strong>optional</strong> for primitive gates.</li>
+</ul>
+</div>
+</div>
+<div class="callout callout-style-simple callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Key Concept: Structural description and hierarchy
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A module is a <strong>structural description</strong> if it is composed of instantiations of other modules. Instantiating modules within other modules creates a <strong>hierarchical decomposition</strong> of the design.</p>
+<p>In the adder, the top level (parent) is the four-bit adder. The four full adders are its <strong>child</strong> modules, and so on. <code>C0</code> is an input of the cell forming the least significant bit of the chain; <code>C4</code> is the output of the cell forming the most significant bit.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="three-state-gates" class="level2">
+<h2 class="anchored" data-anchor-id="three-state-gates">2.2 Three-State Gates</h2>
+<p>A <strong>three-state gate</strong> has a control input that can place the gate in a <strong>high-impedance</strong> state, written <code>z</code> in Verilog. There are four types, shown in Figure 4.31.</p>
+<div class="lab-figure lab-figure-md">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../figures/figure-4.31.png" class="img-fluid figure-img" alt="Four gate symbols, each with an input labeled in, a control input, and an output labeled out. The top two are buffers labeled bufif1 and bufif0; the bottom two are inverters labeled notif1 and notif0. The control input of the bufif0 and notif0 symbols has an inversion bubble."></p>
+<figcaption><strong>Figure 4.31.</strong> Three-state gates</figcaption>
+</figure>
+</div>
+</div>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Gate</th>
+<th style="text-align: center;">Control value that enables it</th>
+<th style="text-align: left;">Output when enabled</th>
+<th style="text-align: center;">Output when not enabled</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>bufif1</code></td>
+<td style="text-align: center;">1</td>
+<td style="text-align: left;">input (like a normal buffer)</td>
+<td style="text-align: center;"><code>z</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>bufif0</code></td>
+<td style="text-align: center;">0</td>
+<td style="text-align: left;">input (like a normal buffer)</td>
+<td style="text-align: center;"><code>z</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>notif1</code></td>
+<td style="text-align: center;">1</td>
+<td style="text-align: left;">complement of the input</td>
+<td style="text-align: center;"><code>z</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>notif0</code></td>
+<td style="text-align: center;">0</td>
+<td style="text-align: left;">complement of the input</td>
+<td style="text-align: center;"><code>z</code></td>
+</tr>
+</tbody>
+</table>
+<p>Three-state gates are instantiated with the form <em>gate name (output, input, control)</em>. In simulation the output can be 0, 1, <code>x</code>, or <code>z</code>.</p>
+<div class="lab-example">
+<div class="lab-example-head">
+<p>Three-state gate instantiations</p>
+</div>
+<p>Shows one <code>bufif1</code> instance and one <code>notif0</code> instance.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode verilog code-with-copy"><code class="sourceCode verilog"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="dt">bufif1</span> <span class="op">(</span>OUT<span class="op">,</span> A<span class="op">,</span> control<span class="op">);</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="dt">notif0</span> <span class="op">(</span>Y<span class="op">,</span> B<span class="op">,</span> enable<span class="op">);</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ul>
+<li>In the first instance, input <code>A</code> is transferred to <code>OUT</code> when <code>control = 1</code>; <code>OUT</code> goes to <code>z</code> when <code>control = 0</code>.</li>
+<li>In the second instance, output <code>Y = z</code> when <code>enable = 1</code>, and <code>Y = B'</code> (the complement of <code>B</code>) when <code>enable = 0</code>.</li>
+</ul>
+<section id="several-drivers-on-one-line" class="level3">
+<h3 class="anchored" data-anchor-id="several-drivers-on-one-line">Several drivers on one line</h3>
+<p>The outputs of several three-state gates can be tied together to form a common output line. To mark such a connection, Verilog uses the keyword <strong><code>tri</code></strong> (for <em>tri-state</em>), which indicates that the net has <strong>multiple drivers</strong>. Figure 4.32 is a two-to-one-line multiplexer built from three-state buffers; its output must be declared with the <code>tri</code> data type.</p>
+<div class="lab-figure lab-figure-sm">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../figures/figure-4.32.png" class="img-fluid figure-img" alt="Two three-state buffers. Input A feeds the upper buffer and input B feeds the lower buffer, which has an inverting control input. The select signal drives both control inputs, and the two buffer outputs are joined into a single output line labeled m_out."></p>
+<figcaption><strong>Figure 4.32.</strong> Two-to-one-line multiplexer with three-state buffers</figcaption>
+</figure>
+</div>
+</div>
+<div class="lab-example">
+<div class="lab-example-head">
+<p>Multiplexer with three-state output</p>
+</div>
+<p>Describes the multiplexer of Figure 4.32 with a <code>bufif1</code> and a <code>bufif0</code> driving the same <code>tri</code> output.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode verilog code-with-copy"><code class="sourceCode verilog"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Mux with three-state output</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> mux_tri <span class="op">(</span>m_out<span class="op">,</span> A<span class="op">,</span> B<span class="op">,</span> select<span class="op">);</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">output</span> m_out<span class="op">;</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">input</span> A<span class="op">,</span> B<span class="op">,</span> select<span class="op">;</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">tri</span> m_out<span class="op">;</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">bufif1</span> <span class="op">(</span>m_out<span class="op">,</span> A<span class="op">,</span> select<span class="op">);</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">bufif0</span> <span class="op">(</span>m_out<span class="op">,</span> B<span class="op">,</span> select<span class="op">);</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="kw">endmodule</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The two three-state buffers drive the same output. To show that they share one connection, <code>m_out</code> must be declared with the keyword <code>tri</code>.</p>
+</section>
+<section id="nets" class="level3">
+<h3 class="anchored" data-anchor-id="nets">Nets</h3>
+<p><code>wire</code> and <code>tri</code> are examples of a class of data types called <strong>nets</strong>, which represent connections between hardware elements. In simulation, a net’s value is determined by a continuous assignment or by the device whose output it represents. The word <em>net</em> is not a keyword; it names the class.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Net type</th>
+<th style="text-align: left;">Models</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>wire</code></td>
+<td style="text-align: left;">An ordinary connection. The most frequently used net.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>tri</code></td>
+<td style="text-align: left;">A connection with multiple three-state drivers.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>wor</code></td>
+<td style="text-align: left;">The wired-OR configuration (emitter-coupled logic).</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>wand</code></td>
+<td style="text-align: left;">The wired-AND configuration (open-collector technology).</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>supply1</code></td>
+<td style="text-align: left;">Power supply; hardwires an input to 1.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>supply0</code></td>
+<td style="text-align: left;">Ground; hardwires an input to 0.</td>
+</tr>
+</tbody>
+</table>
+<p>According to the language rules, an identifier that is used but not declared is interpreted by default as a <code>wire</code>.</p>
+<!-- TODO(instructor): the implicit-wire rule applies only in specific contexts (for example, terminals of gate/module instances and continuous-assignment targets). Consider tightening this sentence. -->
+</section>
+</section>
+<section id="dataflow-modeling" class="level2">
+<h2 class="anchored" data-anchor-id="dataflow-modeling">2.3 Dataflow Modeling</h2>
+<p>Dataflow modeling describes combinational logic with <strong>operators</strong> that act on <strong>operands</strong>. Verilog provides about 30 operators; Table 4.10 lists some of them. (The complete list for Verilog 2001 and 2005 is in Table 8.1, Section 8.2.)</p>
+<div class="lab-table-block">
+<div class="lab-table-title">
+<p>Table 4.10: Some Verilog HDL Operators</p>
+</div>
+<div class="lab-op-table">
+<!-- Escaping note: the OR symbol is written with the HTML entity &#124; because a literal pipe would be read as a table-column separator. -->
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: center;">Symbol</th>
+<th style="text-align: left;">Operation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><code>+</code></td>
+<td style="text-align: left;">Binary addition</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><code>-</code></td>
+<td style="text-align: left;">Binary subtraction</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><code>&amp;</code></td>
+<td style="text-align: left;">Bitwise AND</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><code>|</code></td>
+<td style="text-align: left;">Bitwise OR</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><code>^</code></td>
+<td style="text-align: left;">Bitwise XOR</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><code>~</code></td>
+<td style="text-align: left;">Bitwise NOT</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><code>==</code></td>
+<td style="text-align: left;">Equality</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><code>&gt;</code></td>
+<td style="text-align: left;">Greater than</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><code>&lt;</code></td>
+<td style="text-align: left;">Less than</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><code>{ }</code></td>
+<td style="text-align: left;">Concatenation</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><code>?:</code></td>
+<td style="text-align: left;">Conditional</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Notes on the operators:</p>
+<ul>
+<li>Arithmetic and logic operations use <strong>different symbols</strong>: <code>+</code> is arithmetic addition, while <code>&amp;</code> is the bitwise logic AND. There are separate symbols for bitwise OR, NOT, and XOR.</li>
+<li>The <strong>equality</strong> operator uses two equals signs (<code>==</code>, with no space between them) to distinguish it from the single <code>=</code> used in the <code>assign</code> statement.</li>
+<li><strong>Bitwise operators</strong> work bit by bit on a pair of vector operands.</li>
+<li><strong>Concatenation</strong> appends several operands. For example, two 2-bit operands can be concatenated into one 4-bit operand.</li>
+<li>The <strong>conditional</strong> operator acts like a multiplexer (see Example 4.6 below).</li>
+</ul>
+<section id="continuous-assignments-and-nets" class="level3">
+<h3 class="anchored" data-anchor-id="continuous-assignments-and-nets">Continuous assignments and nets</h3>
+<p>Dataflow modeling uses <strong>continuous assignments</strong> and the keyword <code>assign</code>. A continuous assignment assigns a value to a <strong>net</strong>. The net data types represent a physical connection between circuit elements.</p>
+<ul>
+<li>A net is declared explicitly with a net keyword (for example, <code>wire</code>) or by declaring an identifier to be an output port.</li>
+<li>The logic value of a net is determined by what the net is connected to. If it is connected to a gate output, the net is said to be <strong>driven</strong> by the gate, and its value follows from the gate’s input values and truth table.</li>
+<li>If the net is the left-hand side of a continuous assignment, its value is given by an expression made of operands and operators.</li>
+</ul>
+<!-- TODO(instructor): the source text also lists the left-hand side of a "procedural assignment" as a net. In Verilog, procedural assignments target reg variables, not nets. This handbook keeps only the continuous-assignment case. -->
+<p>For example, a two-line multiplexer with data inputs A and B, select input S, and output Y can be described with one continuous assignment (assuming the variables were declared):</p>
+<div class="lab-example">
+<div class="lab-example-head">
+<p>Multiplexer as one continuous assignment</p>
+</div>
+<p>Relates output Y to inputs A, B, and S with one <code>assign</code> statement and a Boolean expression.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode verilog code-with-copy"><code class="sourceCode verilog"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">assign</span> Y <span class="op">=</span> <span class="op">(</span>A <span class="op">&amp;</span> S<span class="op">)</span> <span class="op">|</span> <span class="op">(</span>B <span class="op">&amp;</span> <span class="op">~</span>S<span class="op">);</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The relationship between Y, A, B, and S is declared by <code>assign</code>, followed by the target output Y, an equals sign, and a Boolean expression. In hardware terms, the assignment is equivalent to connecting the output of the OR gate to wire Y.</p>
+</section>
+<section id="dataflow-versions-of-earlier-examples" class="level3">
+<h3 class="anchored" data-anchor-id="dataflow-versions-of-earlier-examples">Dataflow versions of earlier examples</h3>
+<p>The next two examples are dataflow models of the two earlier gate-level examples.</p>
+<div class="lab-example">
+<div class="lab-example-head">
+<p><span class="lab-example-id">HDL Example 4.3</span> Dataflow two-to-four-line decoder</p>
+</div>
+<p>Uses four continuous assignment statements with Boolean expressions, one per output.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode verilog code-with-copy"><code class="sourceCode verilog"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">// HDL Example 4.3</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="co">// Dataflow description of two-to-four-line decoder</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co">// See Fig. 4.19. Note: The figure uses symbol E, but the</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Verilog model uses enable to clearly indicate functionality.</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> decoder_2x4_df <span class="op">(</span>   <span class="co">// Verilog 2001, 2005 syntax</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">output</span> <span class="op">[</span><span class="dv">0</span><span class="op">:</span><span class="dv">3</span><span class="op">]</span> D<span class="op">,</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">input</span>        A<span class="op">,</span> B<span class="op">,</span> enable</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="op">);</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="kw">assign</span> D<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> <span class="op">~(~</span>A <span class="op">&amp;</span> <span class="op">~</span>B <span class="op">&amp;</span> <span class="op">~</span>enable<span class="op">),</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>         D<span class="op">[</span><span class="dv">1</span><span class="op">]</span> <span class="op">=</span> <span class="op">~(~</span>A <span class="op">&amp;</span>  B <span class="op">&amp;</span> <span class="op">~</span>enable<span class="op">),</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>         D<span class="op">[</span><span class="dv">2</span><span class="op">]</span> <span class="op">=</span> <span class="op">~(</span> A <span class="op">&amp;</span> <span class="op">~</span>B <span class="op">&amp;</span> <span class="op">~</span>enable<span class="op">),</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>         D<span class="op">[</span><span class="dv">3</span><span class="op">]</span> <span class="op">=</span> <span class="op">~(</span> A <span class="op">&amp;</span>  B <span class="op">&amp;</span> <span class="op">~</span>enable<span class="op">);</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="kw">endmodule</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="lab-example">
+<div class="lab-example-head">
+<p><span class="lab-example-id">HDL Example 4.4</span> Dataflow four-bit adder</p>
+</div>
+<p>Describes the whole adder with one statement that combines addition and concatenation.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode verilog code-with-copy"><code class="sourceCode verilog"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">// HDL Example 4.4</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co">// Dataflow description of four-bit adder</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co">// Verilog 2001, 2005 module port syntax</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> binary_adder <span class="op">(</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">output</span> <span class="op">[</span><span class="dv">3</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span> Sum<span class="op">,</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">output</span>       C_out<span class="op">,</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">input</span>  <span class="op">[</span><span class="dv">3</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span> A<span class="op">,</span> B<span class="op">,</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">input</span>        C_in</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="op">);</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="kw">assign</span> <span class="op">{</span>C_out<span class="op">,</span> Sum<span class="op">}</span> <span class="op">=</span> A <span class="op">+</span> B <span class="op">+</span> C_in<span class="op">;</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="kw">endmodule</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>In Example 4.4, the plus symbol (<code>+</code>) adds the four bits of <strong>A</strong>, the four bits of <strong>B</strong>, and the one bit <strong>C_in</strong>. The target is the <strong>concatenation</strong> of the output carry <strong>C_out</strong> and the four bits of <strong>Sum</strong>. Concatenation is written inside braces with commas between the operands, so <code>{C_out, Sum}</code> is the five-bit result of the addition.</p>
+</section>
+<section id="comparator-and-multiplexer" class="level3">
+<h3 class="anchored" data-anchor-id="comparator-and-multiplexer">Comparator and multiplexer</h3>
+<p>Dataflow models describe circuits <strong>by their function rather than by their gate structure</strong>. This makes design easier, as the comparator shows.</p>
+<div class="lab-example">
+<div class="lab-example-head">
+<p><span class="lab-example-id">HDL Example 4.5</span> Dataflow four-bit magnitude comparator</p>
+</div>
+<p>Defines three outputs (less than, greater than, equal) from two four-bit inputs using comparison operators.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode verilog code-with-copy"><code class="sourceCode verilog"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">// HDL Example 4.5</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="co">// Dataflow description of a four-bit comparator</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> mag_compare <span class="op">(</span><span class="dt">output</span> A_lt_B<span class="op">,</span> A_eq_B<span class="op">,</span> A_gt_B<span class="op">,</span> <span class="dt">input</span> <span class="op">[</span><span class="dv">3</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span> A<span class="op">,</span> B<span class="op">);</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">assign</span> A_lt_B <span class="op">=</span> <span class="op">(</span>A <span class="op">&lt;</span> B<span class="op">);</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">assign</span> A_gt_B <span class="op">=</span> <span class="op">(</span>A <span class="op">&gt;</span> B<span class="op">);</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">assign</span> A_eq_B <span class="op">=</span> <span class="op">(</span>A <span class="op">==</span> B<span class="op">);</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="kw">endmodule</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The module has two 4-bit inputs, <strong>A</strong> and <strong>B</strong>, and three outputs:</p>
+<ul>
+<li><code>A_lt_B</code> is 1 if A is less than B,</li>
+<li><code>A_gt_B</code> is 1 if A is greater than B,</li>
+<li><code>A_eq_B</code> is 1 if A is equal to B.</li>
+</ul>
+<p>Equality is written with two equals signs (<code>==</code>) to distinguish it from the assignment operator (<code>=</code>). A Verilog synthesis compiler can accept this module as input, run synthesis algorithms, and produce a netlist and a schematic of an equivalent circuit <strong>without manual intervention</strong>.</p>
+<div class="callout callout-style-simple callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Key Concept: The conditional operator
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The conditional operator <code>? :</code> takes three operands: <em>condition ? true-expression : false-expression</em>.</p>
+<p>The condition is evaluated. If the result is logic 1, the true expression is evaluated; if it is logic 0, the false expression is evaluated. Together they are equivalent to an <code>if-else</code> condition.</p>
+</div>
+</div>
+<div class="lab-example">
+<div class="lab-example-head">
+<p><span class="lab-example-id">HDL Example 4.6</span> Dataflow two-to-one-line multiplexer</p>
+</div>
+<p>Uses the conditional operator in a continuous assignment: the output is A if <code>select = 1</code>, otherwise B.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode verilog code-with-copy"><code class="sourceCode verilog"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">// HDL Example 4.6</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co">// Dataflow description of two-to-one-line multiplexer</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> mux_2x1_df <span class="op">(</span>m_out<span class="op">,</span> A<span class="op">,</span> B<span class="op">,</span> select<span class="op">);</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">output</span> m_out<span class="op">;</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">input</span>  A<span class="op">,</span> B<span class="op">;</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">input</span>  select<span class="op">;</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">assign</span> m_out <span class="op">=</span> <span class="op">(</span>select<span class="op">)</span> <span class="op">?</span> A <span class="op">:</span> B<span class="op">;</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="kw">endmodule</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+</section>
+<section id="behavioral-modeling" class="level2">
+<h2 class="anchored" data-anchor-id="behavioral-modeling">2.4 Behavioral Modeling</h2>
+<p>Behavioral modeling represents digital circuits at a <strong>functional and algorithmic level</strong>. It is used mostly to describe sequential circuits but can also describe combinational ones. Two simple combinational examples introduce it here; behavioral modeling is covered in more detail in <a href="../chapters/03-sequential-circuit-models.html">Chapter 3</a>, after the study of sequential circuits.</p>
+<p>A behavioral description uses the keyword <strong><code>always</code></strong>, followed by an optional <strong>event control expression</strong> and a list of <strong>procedural assignment statements</strong>. The event control expression says when the statements execute.</p>
+<div class="callout callout-style-simple callout-important no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Important Note: Targets must be <code>reg</code>
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The target of a procedural assignment must be of the <strong><code>reg</code></strong> data type. A <code>reg</code> keeps its value until a new value is assigned to it (in contrast to a net, which is continuously driven).</p>
+</div>
+</div>
+<section id="two-to-one-line-multiplexer" class="level3">
+<h3 class="anchored" data-anchor-id="two-to-one-line-multiplexer">Two-to-one-line multiplexer</h3>
+<div class="lab-example">
+<div class="lab-example-head">
+<p><span class="lab-example-id">HDL Example 4.7</span> Behavioral two-to-one-line multiplexer</p>
+</div>
+<p>Uses an <code>always</code> block with an <code>if-else</code> statement (compare with Example 4.6).</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode verilog code-with-copy"><code class="sourceCode verilog"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">// HDL Example 4.7</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="co">// Behavioral description of two-to-one-line multiplexer</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> mux_2x1_beh <span class="op">(</span>m_out<span class="op">,</span> A<span class="op">,</span> B<span class="op">,</span> select<span class="op">);</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">output</span> m_out<span class="op">;</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">input</span>  A<span class="op">,</span> B<span class="op">,</span> select<span class="op">;</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">reg</span>    m_out<span class="op">;</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">always</span> <span class="op">@(</span>A <span class="dt">or</span> B <span class="dt">or</span> select<span class="op">)</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">if</span> <span class="op">(</span>select <span class="op">==</span> <span class="dv">1</span><span class="op">)</span> m_out <span class="op">=</span> A<span class="op">;</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">else</span>             m_out <span class="op">=</span> B<span class="op">;</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="kw">endmodule</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ul>
+<li>Because <code>m_out</code> is a target output, it must be declared as <code>reg</code>, <strong>in addition to</strong> its <code>output</code> declaration.</li>
+<li>The statements in the <code>always</code> block run <strong>every time any variable listed after the <code>@</code> symbol changes</strong>: here <code>A</code>, <code>B</code>, or <code>select</code>.</li>
+<li>There is <strong>no semicolon</strong> at the end of the <code>always</code> statement.</li>
+<li>The keyword <code>or</code> (not the bitwise operator <code>|</code>) separates the variables in the list.</li>
+<li>The <code>if-else</code> statement chooses based on the value of <code>select</code>.</li>
+</ul>
+<p>The <code>if</code> statement can be written without the equality symbol; this form checks whether <code>select</code> is logic 1:</p>
+<div class="lab-example">
+<div class="lab-example-head">
+<p>Shorthand <code>if</code> test</p>
+</div>
+<p>Shows an <code>if</code> that tests <code>select</code> for logic 1 without writing <code>== 1</code>.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode verilog code-with-copy"><code class="sourceCode verilog"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">if</span> <span class="op">(</span>select<span class="op">)</span> m_out <span class="op">=</span> A<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="four-to-one-line-multiplexer" class="level3">
+<h3 class="anchored" data-anchor-id="four-to-one-line-multiplexer">Four-to-one-line multiplexer</h3>
+<div class="lab-example">
+<div class="lab-example-head">
+<p><span class="lab-example-id">HDL Example 4.8</span> Behavioral four-to-one-line multiplexer</p>
+</div>
+<p>Uses a <code>case</code> statement on a two-bit <code>select</code> vector to choose one of four inputs.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode verilog code-with-copy"><code class="sourceCode verilog"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">// HDL Example 4.8</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="co">// Behavioral description of four-to-one-line multiplexer</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co">// Verilog 2001, 2005 port syntax</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> mux_4x1_beh <span class="op">(</span><span class="dt">output</span> <span class="dt">reg</span> m_out<span class="op">,</span> <span class="dt">input</span> in_0<span class="op">,</span> in_1<span class="op">,</span> in_2<span class="op">,</span> in_3<span class="op">,</span> <span class="dt">input</span> <span class="op">[</span><span class="dv">1</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span> select<span class="op">);</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">always</span> <span class="op">@(</span>in_0<span class="op">,</span> in_1<span class="op">,</span> in_2<span class="op">,</span> in_3<span class="op">,</span> select<span class="op">)</span>   <span class="co">// Verilog 2001, 2005 syntax</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">case</span> <span class="op">(</span>select<span class="op">)</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>      <span class="bn">2'b00</span><span class="op">:</span> m_out <span class="op">=</span> in_0<span class="op">;</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>      <span class="bn">2'b01</span><span class="op">:</span> m_out <span class="op">=</span> in_1<span class="op">;</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>      <span class="bn">2'b10</span><span class="op">:</span> m_out <span class="op">=</span> in_2<span class="op">;</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>      <span class="bn">2'b11</span><span class="op">:</span> m_out <span class="op">=</span> in_3<span class="op">;</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">endcase</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="kw">endmodule</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The <code>select</code> input is a two-bit vector and the output is declared <code>reg</code>. The <code>always</code> statement contains a sequential block enclosed by <code>case</code> and <code>endcase</code>. The block runs whenever any input in the list changes value.</p>
+<p><code>case</code> is a <strong>multiway conditional branch</strong>. When an input or <code>select</code> changes:</p>
+<ol type="1">
+<li>The case expression (<code>select</code>) is evaluated.</li>
+<li>Its value is compared, <strong>from top to bottom</strong>, with the <strong>case items</strong>.</li>
+<li>The statement of the <strong>first</strong> matching case item is executed.</li>
+<li>If there is no match, no statement is executed.</li>
+</ol>
+<p><code>select</code> is a two-bit number, so it can be 00, 01, 10, or 11. The case items have an <strong>implied priority</strong> because the list is evaluated from top to bottom.</p>
+<div class="callout callout-style-simple callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Key Concept: Sensitivity list
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The list after the <code>@</code> symbol is called a <strong>sensitivity list</strong> (Verilog 2001, 2005). It is equivalent to the <strong>event control expression</strong> of Verilog 1995, formed by “ORing” the signals.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Verilog 1995</th>
+<th style="text-align: left;">Verilog 2001, 2005</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Signals separated by the keyword <code>or</code></td>
+<td style="text-align: left;">Signals separated by commas</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="implicit-sensitivity-list" class="level3">
+<h3 class="anchored" data-anchor-id="implicit-sensitivity-list">Implicit sensitivity list</h3>
+<p>A sensitivity list is only useful if it is complete, and in a large design it is easy to forget a signal. Verilog 2001 therefore lets you write <code>@*</code> or <code>@(*)</code> <strong>without a list</strong>: the block is then sensitive to <strong>every variable referenced on the right-hand side</strong> of its assignments.</p>
+<div class="lab-example">
+<div class="lab-example-head">
+<p>Two forms of <code>always</code> without a list</p>
+</div>
+<p>Two equivalent ways to write it; in both, the block is sensitive to <code>a</code> and <code>b</code> without listing them.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode verilog code-with-copy"><code class="sourceCode verilog"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">always</span> <span class="op">@</span>*        <span class="co">// sensitive to every variable read on the right-hand side</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  y <span class="op">=</span> a <span class="op">&amp;</span> b<span class="op">;</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="kw">always</span> <span class="op">@(</span>*<span class="op">)</span>      <span class="co">// same meaning, parenthesized form</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  y <span class="op">=</span> a <span class="op">&amp;</span> b<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="callout callout-style-simple callout-important no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Important Note: Incomplete lists create latches
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A level-sensitive <code>always</code> block that describes combinational logic must list <strong>every variable</strong> referenced on the right-hand side of its assignments. If the list is incomplete, the logic is synthesized with <strong>latches</strong> at its outputs. This wastes silicon area, and the synthesized circuit may no longer match the simulation of the model.</p>
+</div>
+</div>
+<div class="callout callout-style-simple callout-tip no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Remember: <code>@*</code> for combinational logic
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>With <code>@*</code>, the block is interpreted and synthesized as <strong>level-sensitive combinational logic</strong> whose implicit sensitivity list contains every referenced variable. This prevents accidental latches.</p>
+</div>
+</div>
+</section>
+<section id="writing-numbers" class="level3">
+<h3 class="anchored" data-anchor-id="writing-numbers">Writing numbers</h3>
+<p>Binary numbers are written with the letter <code>b</code> preceded by a prime (apostrophe). The <strong>size</strong> is written first, then the <strong>value</strong>. For example, <code>2'b01</code> is a two-bit binary number with value 01.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: center;">Letter</th>
+<th style="text-align: left;">Base</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><code>b</code></td>
+<td style="text-align: left;">Binary</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><code>d</code></td>
+<td style="text-align: left;">Decimal</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><code>o</code></td>
+<td style="text-align: left;">Octal</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><code>h</code></td>
+<td style="text-align: left;">Hexadecimal</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Numbers are stored as bit patterns, but they can be written in any of these bases.</li>
+<li>If the base is not specified, the number is <strong>decimal</strong>.</li>
+<li>If the size is not specified, the system assumes <strong>at least 32 bits</strong> (more if the host simulator has a longer word, such as 64 bits).</li>
+<li>The <code>integer</code> data type is stored in a 32-bit representation.</li>
+<li>An underscore may be inserted in a number to improve readability, for example <code>16'b0101_1110_0101_0011</code>. It has no other effect.</li>
+</ul>
+<!-- TODO(instructor): the source OCR shows "l6'b0101_1110_0101_0011" (letter l instead of digit 1). Verify against the original. -->
+</section>
+<section id="casex-casez-and-default" class="level3">
+<h3 class="anchored" data-anchor-id="casex-casez-and-default"><code>casex</code>, <code>casez</code>, and <code>default</code></h3>
+<p>The <code>case</code> construct has two variations:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Construct</th>
+<th style="text-align: left;">Treated as don’t-cares when matching</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>casex</code></td>
+<td style="text-align: left;">Any bit of the case expression or case item that is <code>x</code> <strong>or</strong> <code>z</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>casez</code></td>
+<td style="text-align: left;">Only bits that are <code>z</code></td>
+</tr>
+</tbody>
+</table>
+<p>If the case items do not cover all bit patterns of the case expression, some patterns have no match. Unlisted patterns can be handled with the <strong><code>default</code></strong> keyword as the <strong>last</strong> case item; its statement runs when no other item matches.</p>
+<div class="callout callout-style-simple callout-tip no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Remember: Why <code>default</code> matters
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><code>default</code> is useful when a sequential machine has more possible state codes than are actually used. It lets the designer map all unused states to a chosen next state without elaborating each one, rather than letting the synthesis tool assign the next state arbitrarily.</p>
+</div>
+</div>
+<p>The behavioral examples here are simple. Behavioral modeling and procedural assignment statements require knowledge of sequential circuits, which <a href="../chapters/03-sequential-circuit-models.html">Chapter 3</a> covers next.</p>
+</section>
+</section>
+<section id="chapter-summary" class="level2">
+<h2 class="anchored" data-anchor-id="chapter-summary">Chapter Summary</h2>
+<ul>
+<li>Combinational logic can be modeled at gate level (<code>and</code>, <code>or</code>, … instances), as dataflow (<code>assign</code>), or behaviorally (<code>always</code>).</li>
+<li>Verilog uses four logic values: 0, 1, <code>x</code> (unknown), and <code>z</code> (high impedance).</li>
+<li>Modules are combined hierarchically by instantiation; module declarations cannot be nested.</li>
+<li>Three-state gates (<code>bufif1</code>, <code>bufif0</code>, <code>notif1</code>, <code>notif0</code>) output <code>z</code> when disabled; nets with several drivers use <code>tri</code>.</li>
+<li>Dataflow models use operators, concatenation <code>{ }</code>, and the conditional operator <code>? :</code>.</li>
+<li>Behavioral models use <code>always</code> with <code>reg</code> targets, <code>if-else</code>, and <code>case</code> (with <code>default</code>, <code>casex</code>, and <code>casez</code>). Writing <code>always @*</code> makes the sensitivity list complete and avoids accidental latches.</li>
+</ul>
+
+
+</section>
+
+<a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a></main> <!-- /main -->
+<script>
+
+/* Keeps the back-to-top button hidden when the page is scrolled all the way to the bottom
+
+   (scroll bounce and late layout changes there can look like an upward scroll). */
+
+(function () {
+
+  function init() {
+
+    var btn = document.getElementById("quarto-back-to-top");
+
+    if (!btn) return;
+
+    function guard() {
+
+      requestAnimationFrame(function () {
+
+        var atBottom = window.innerHeight + window.pageYOffset >= document.documentElement.scrollHeight - 4;
+
+        if (atBottom) btn.style.display = "none";
+
+      });
+
+    }
+
+    window.addEventListener("scroll", guard, { passive: true });
+
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+
+  else init();
+
+})();
+
+</script>
+
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const toggle = window.document.createElement('button');
+      toggle.type = "button";
+      toggle.setAttribute("role", "switch");
+      toggle.setAttribute("aria-checked", "false");
+      toggle.classList.add('top-right');
+      toggle.classList.add('quarto-color-scheme-toggle');
+      toggle.setAttribute("aria-label", "Toggle dark mode");
+      toggle.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      toggle.appendChild(i);
+      // Put the toggle in a landmark of its own, so that landmark navigation
+      // can reach it.
+      //
+      // The container is always a fresh direct child of body, and the toggle is
+      // never moved into page furniture that the theme or the author controls.
+      // The toggle is positioned against the page, so any ancestor that
+      // establishes a containing block captures it: a positioned element or a
+      // grid for position: absolute, and transform, filter, will-change or
+      // contain for position: fixed. A direct child of body has none of these
+      // to inherit, and the shift when one appears is silent and visual.
+      //
+      // ARIA says a document should have at most one banner, and axe reports a
+      // duplicate whether or not the banners carry distinct labels. So use a
+      // header when the page has no banner yet, and a named region otherwise.
+      //
+      // A header is a banner wherever it sits, unless it is inside sectioning
+      // content, so this cannot just look at the children of body: a custom
+      // page layout wraps the title block header in a plain div. An explicit
+      // role="banner" always counts.
+      const sectioning = 'article, aside, main, nav, section, [role="article"], [role="complementary"], [role="main"], [role="navigation"], [role="region"]';
+      const hasBanner = Array.from(
+        window.document.querySelectorAll('header:not([role]), [role="banner"]')
+      ).some(function(el) {
+        return el.hasAttribute("role") || el.closest(sectioning) === null;
+      });
+      const container = window.document.createElement(hasBanner ? "div" : "header");
+      if (hasBanner) {
+        container.setAttribute("role", "region");
+        container.setAttribute("aria-label", "Toggle dark mode");
+      }
+      container.classList.add('quarto-color-scheme-toggle-container');
+      container.appendChild(toggle);
+      window.document.body.appendChild(container);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/vesalbargi\.github\.io\/verilog-hdl-handbook\/");
+      const newWindowLabel = "(opens in a new tab)";
+      const newWindowNoteId = "quarto-ext-newwindow-label";
+      // Links reference one hidden label through aria-describedby, so the
+      // announcement never changes their accessible name.
+      var describeNewWindow = (link) => {
+        if (!window.document.getElementById(newWindowNoteId)) {
+          var newWindowNote = window.document.createElement("span");
+          newWindowNote.id = newWindowNoteId;
+          newWindowNote.hidden = true;
+          newWindowNote.textContent = newWindowLabel;
+          window.document.body.appendChild(newWindowNote);
+        }
+        var describedBy = (link.getAttribute("aria-describedby") || "").split(/\s+/).filter(Boolean);
+        if (!describedBy.includes(newWindowNoteId)) {
+          describedBy.push(newWindowNoteId);
+          link.setAttribute("aria-describedby", describedBy.join(" "));
+        }
+      }
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+      window.quartoDecorateExternalLinks = function (root) {
+     var links = (root || window.document).querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+            describeNewWindow(link);
+          if (!link.classList.contains('no-external-icon')) {
+          }
+        }
+      }
+      };
+      window.quartoDecorateExternalLinks(window.document);
+    // Esc closes the popup (WCAG 1.4.13) and focus leaving both trigger and
+    // popup closes it (WCAG 2.4.11); tippy handles neither for interactive popups.
+    const hideOnEscAndFocusOut = {
+      name: 'hideOnEscAndFocusOut',
+      defaultValue: true,
+      fn(instance) {
+        const dismiss = () => {
+          // A show scheduled by the trigger delay would otherwise reopen it
+          instance.clearDelayTimeouts();
+          instance.hide();
+        };
+        const onKeyDown = (event) => {
+          if (event.key !== 'Escape') {
+            return;
+          }
+          // Keep Esc from also reaching page handlers (e.g. reveal.js overview),
+          // except an open reveal.js slide menu, which Esc should close too.
+          // The menu handles keys only when its keyboard option is on.
+          const menuHandlesEsc = window.Reveal?.getPlugin?.('menu')?.isOpen() &&
+            window.Reveal.getConfig().menu?.keyboard !== false;
+          if (!menuHandlesEsc) {
+            event.stopPropagation();
+          }
+          if (instance.popper.contains(window.document.activeElement)) {
+            // Disabled while refocusing so the focus trigger does not reopen it
+            instance.disable();
+            instance.reference.focus();
+            instance.enable();
+          }
+          dismiss();
+        };
+        const onFocusOut = (event) => {
+          const target = event.relatedTarget;
+          if (target && !instance.reference.contains(target) &&
+              !instance.popper.contains(target)) {
+            dismiss();
+          }
+        };
+        // On the trigger too: a click trigger (code-annotations: select) has no
+        // blur handling. Attached for the instance's lifetime so leaving the
+        // trigger also cancels a show still pending on the trigger delay.
+        instance.reference.addEventListener('focusout', onFocusOut);
+        return {
+          onShow() {
+            window.document.addEventListener('keydown', onKeyDown, true);
+            instance.popper.addEventListener('focusout', onFocusOut);
+          },
+          onHide() {
+            window.document.removeEventListener('keydown', onKeyDown, true);
+            instance.popper.removeEventListener('focusout', onFocusOut);
+          },
+          onDestroy() {
+            instance.reference.removeEventListener('focusout', onFocusOut);
+          },
+        };
+      },
+    };
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+        plugins: [hideOnEscAndFocusOut],
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          // Each band is positioned against its own containing block, which is
+          // not the offsetParent of the lines, so place it from client rects.
+          const placeBand = (band, firstEl, lastEl, codeBlock) => {
+            const container = band.offsetParent;
+            if (container === null) {
+              return;
+            }
+            const containerRect = container.getBoundingClientRect();
+            // Reveal.js scales slides with a transform, so convert client
+            // pixels back to the CSS pixels of the container.
+            const scale = containerRect.height / container.offsetHeight || 1;
+            const firstRect = firstEl.getBoundingClientRect();
+            const lastRect = lastEl.getBoundingClientRect();
+            const top = (firstRect.top - containerRect.top) / scale - container.clientTop + container.scrollTop;
+            const height = (lastRect.bottom - firstRect.top) / scale;
+            band.style.top = top - 2 + "px";
+            band.style.height = height + 4 + "px";
+            if (codeBlock) {
+              // Without the copy button wrapper, the containing block is wider
+              // than the code block, so span the code block explicitly.
+              const blockRect = codeBlock.getBoundingClientRect();
+              band.style.left = (blockRect.left - containerRect.left) / scale - container.clientLeft + container.scrollLeft + "px";
+              band.style.width = blockRect.width / scale + "px";
+            }
+          };
+          if (lineIds.length > 0) {
+            const el = window.document.getElementById(lineIds[0]);
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const parent = el.parentElement.parentElement;
+            // cook up a div (if necessary) and position it
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            placeBand(div, el, lastEl, parent.closest("div.sourceCode") || parent);
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            placeBand(gutterDiv, el, lastEl);
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+  <script type="application/javascript">
+  window.quartoScrollableRegionsLabels = {"code":"Scrollable code","output":"Scrollable output"};
+  </script>
+<nav class="page-navigation" aria-label="Page">
+  <div class="nav-page nav-page-previous">
+      <a href="../chapters/01-hardware-description-language.html" class="pagination-link" aria-label="Chapter 1">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Chapter 1</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../chapters/03-sequential-circuit-models.html" class="pagination-link" aria-label="Chapter 3">
+        <span class="nav-page-text">Chapter 3</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>Computer Architecture Laboratory | LAB3114</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+<script src="../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

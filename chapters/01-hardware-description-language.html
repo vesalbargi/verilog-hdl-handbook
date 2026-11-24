@@ -1,0 +1,1425 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.11.9">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Chapter 1: Hardware Description Language – LAB3114</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../chapters/02-combinational-circuit-models.html" rel="next">
+<link href="../index.html" rel="prev">
+<link href="../assets/favicon.svg" rel="icon" type="image/svg+xml">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/scrollable-regions/scrollable-regions.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-4c2e2814ce9a857492911c1eaac7bc64.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-7191fb07fbc61ba70e96a6186d89682a.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-4c2e2814ce9a857492911c1eaac7bc64.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-150f6e08a313be43782d932bfb7aa735.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-682cfce0fad481e7ee3e1723f0110cde.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-150f6e08a313be43782d932bfb7aa735.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;display=swap" rel="stylesheet">
+
+
+
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light"><a id="quarto-skip-link" class="visually-hidden-focusable" href="#quarto-document-content">Skip to main content</a><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          toggle.setAttribute("aria-checked", alternate ? "true" : "false");
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455).
+    // Not run on load: stylesheets are set before first paint there, and
+    // scrolling would undo the scroll to a URL fragment (#14973).
+    // The one pixel nudge keeps the reader where they were.
+    const refreshSafariScrollbar = () => {
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        const scrollY = window.scrollY;
+        window.scrollTo(0, scrollY > 0 ? scrollY - 1 : 1);
+        setTimeout(() => {
+          window.scrollTo(0, scrollY);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const queryPrefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+    const darkModeDefault = queryPrefersDark.matches;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      refreshSafariScrollbar();
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    queryPrefersDark.addEventListener("change", e => {
+      if(window.localStorage.getItem("quarto-color-scheme") !== null)
+        return;
+      const alternate = e.matches
+      toggleColorMode(alternate);
+      refreshSafariScrollbar();
+      localAlternateSentinel = e.matches ? 'alternate' : 'default'; // this is used alongside local storage!
+      toggleGiscusIfUsed(alternate, darkModeDefault);
+    });
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark" aria-label="Site">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Verilog HDL Handbook</span>
+    </a>
+  </div>
+        <div class="quarto-navbar-tools tools-end">
+    <a href="https://github.com/vesalbargi/verilog-hdl-handbook" title="" class="quarto-navigation-tool px-1" aria-label="" target="_blank"><i class="bi bi-github"></i></a>
+  <button type="button" role="switch" aria-checked="false" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode" aria-label="Toggle dark mode"><i class="bi"></i></button>
+</div>
+          <div id="quarto-search" class="" title="Search"></div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav" aria-label="Toolbar">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <a class="flex-grow-1 no-decor" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+          <h1 class="quarto-secondary-nav-title">Chapter 1: Hardware Description Language</h1>
+        </a>     
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto" aria-label="Section">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Home</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-controls="quarto-sidebar-section-1" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-1-label">Chapters</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-1" aria-labelledby="quarto-sidebar-section-1-label" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/01-hardware-description-language.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Chapter 1</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/02-combinational-circuit-models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 2</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/03-sequential-circuit-models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 3</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" aria-labelledby="toc-title" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview">Chapter Overview</a>
+  <ul class="collapse">
+  <li><a href="#why-use-an-hdl" id="toc-why-use-an-hdl" class="nav-link" data-scroll-target="#why-use-an-hdl">Why use an HDL?</a></li>
+  <li><a href="#what-is-an-hdl" id="toc-what-is-an-hdl" class="nav-link" data-scroll-target="#what-is-an-hdl">What is an HDL?</a></li>
+  <li><a href="#where-hdls-are-used-in-the-design-flow" id="toc-where-hdls-are-used-in-the-design-flow" class="nav-link" data-scroll-target="#where-hdls-are-used-in-the-design-flow">Where HDLs are used in the design flow</a></li>
+  <li><a href="#why-verilog" id="toc-why-verilog" class="nav-link" data-scroll-target="#why-verilog">Why Verilog?</a></li>
+  </ul></li>
+  <li><a href="#module-declaration" id="toc-module-declaration" class="nav-link" data-scroll-target="#module-declaration">1.1 Module Declaration</a>
+  <ul class="collapse">
+  <li><a href="#basic-language-rules" id="toc-basic-language-rules" class="nav-link" data-scroll-target="#basic-language-rules">Basic language rules</a></li>
+  <li><a href="#reading-the-first-example" id="toc-reading-the-first-example" class="nav-link" data-scroll-target="#reading-the-first-example">Reading the first example</a></li>
+  </ul></li>
+  <li><a href="#boolean-expressions" id="toc-boolean-expressions" class="nav-link" data-scroll-target="#boolean-expressions">1.2 Boolean Expressions</a></li>
+  <li><a href="#user-defined-primitives" id="toc-user-defined-primitives" class="nav-link" data-scroll-target="#user-defined-primitives">1.3 User-Defined Primitives</a>
+  <ul class="collapse">
+  <li><a href="#rules-for-a-combinational-udp" id="toc-rules-for-a-combinational-udp" class="nav-link" data-scroll-target="#rules-for-a-combinational-udp">Rules for a combinational UDP</a></li>
+  <li><a href="#example-a-udp-and-a-circuit-that-uses-it" id="toc-example-a-udp-and-a-circuit-that-uses-it" class="nav-link" data-scroll-target="#example-a-udp-and-a-circuit-that-uses-it">Example: a UDP and a circuit that uses it</a></li>
+  <li><a href="#more-about-udps" id="toc-more-about-udps" class="nav-link" data-scroll-target="#more-about-udps">More about UDPs</a></li>
+  </ul></li>
+  <li><a href="#chapter-summary" id="toc-chapter-summary" class="nav-link" data-scroll-target="#chapter-summary">Chapter Summary</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content" tabindex="-1">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title d-none d-lg-block">Chapter 1: Hardware Description Language</h1>
+<p class="subtitle lead">Computer Architecture Laboratory, LAB3114</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<!--
+  Source: source pages 3-10 (chapter 1 text, Examples 3.1-3.5, Figures 3.37 and 3.39).
+  Figures: 3.37 (section 1.1), 3.39 (section 1.3). Tables: none.
+  Code placeholders: 4 examples / 5 code blocks.
+  Instructor-review items for this chapter are listed in instructor-review.md.
+-->
+<div class="lab-objectives">
+<p><strong>Learning objectives</strong></p>
+<ul>
+<li>Explain what a hardware description language (HDL) is and why circuits are simulated before they are built.</li>
+<li>Name the main steps of an HDL-based design flow.</li>
+<li>Read a basic Verilog module: keywords, identifiers, ports, wires, and gate instances.</li>
+<li>Describe combinational logic with Boolean expressions.</li>
+<li>Define a user-defined primitive (UDP) from a truth table.</li>
+</ul>
+</div>
+<section id="overview" class="level2">
+<h2 class="anchored" data-anchor-id="overview">Chapter Overview</h2>
+<!-- Unnumbered lead-in text that precedes section 1.1 in the source (pages 3-5). -->
+<section id="why-use-an-hdl" class="level3">
+<h3 class="anchored" data-anchor-id="why-use-an-hdl">Why use an HDL?</h3>
+<p>Manual design methods work only for small circuits. Practical circuits are designed with computer-based tools. Combined with a correct-by-construction methodology, these tools make the most of the designer’s creativity and effort and reduce the risk of a flawed design.</p>
+<p>Prototype integrated circuits are too expensive and slow to build. Modern design tools therefore rely on an HDL to <strong>describe, design, and test</strong> a circuit in software before it is manufactured.</p>
+</section>
+<section id="what-is-an-hdl" class="level3">
+<h3 class="anchored" data-anchor-id="what-is-an-hdl">What is an HDL?</h3>
+<p>A <strong>hardware description language</strong> (HDL) is a computer-based language that describes the hardware of digital systems in textual form. It resembles an ordinary programming language such as C, but it is oriented to hardware structures and the behavior of logic circuits.</p>
+<p>An HDL can represent:</p>
+<ul>
+<li>logic diagrams,</li>
+<li>truth tables,</li>
+<li>Boolean expressions, and</li>
+<li>complex abstractions of the behavior of a digital system.</li>
+</ul>
+<p>One useful view: an HDL describes the <strong>relationship between the signals that are inputs to a circuit and the signals that are its outputs</strong>. An HDL description of an AND gate, for example, describes how the gate’s output value is determined by the values of its inputs.</p>
+<p>An HDL is also a <strong>documentation language</strong>. Its descriptions can be read by both humans and computers, serve as an exchange language between designers, and can be stored, retrieved, edited, transmitted, and processed by software efficiently.</p>
+</section>
+<section id="where-hdls-are-used-in-the-design-flow" class="level3">
+<h3 class="anchored" data-anchor-id="where-hdls-are-used-in-the-design-flow">Where HDLs are used in the design flow</h3>
+<p>HDLs are used in several major steps of integrated-circuit design:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Step</th>
+<th style="text-align: left;">What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Design entry</td>
+<td style="text-align: left;">Creates an HDL description of the functionality to be implemented in hardware.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Functional simulation (verification)</td>
+<td style="text-align: left;">Shows how the described circuit behaves, before it is fabricated.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Logic synthesis</td>
+<td style="text-align: left;">Derives a netlist of physical components and interconnections from the HDL model.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Timing verification</td>
+<td style="text-align: left;">Confirms that the fabricated circuit will run at the specified speed.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Fault simulation</td>
+<td style="text-align: left;">Finds input patterns that tell a faulty circuit from a fault-free one.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Design entry.</strong> Depending on the HDL, the description can take several forms: Boolean logic equations, truth tables, a netlist of interconnected gates, or an abstract behavioral model. An HDL model may also represent one partition of a larger circuit, divided into smaller interconnected and interacting functional units.</p>
+<p><strong>Logic simulation.</strong> A simulator interprets the HDL description and either produces readable output (such as a time-ordered sequence of input and output values) or displays waveforms. Simulation detects functional errors without physically building and operating the circuit. Errors are corrected by modifying the HDL statements.</p>
+<div class="callout callout-style-simple callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Key Concept: Test bench
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The <strong>stimulus</strong> (the logic values applied to a circuit’s inputs) that tests the functionality of a design is called a <strong>test bench</strong>. A test bench is also written in the HDL.</p>
+<p>To simulate a digital system, first describe the design in an HDL, then verify it by simulating it and checking it with a test bench. Formal mathematical methods can prove that a circuit is correct, but they are more complex; this course focuses on simulation.</p>
+</div>
+</div>
+<p><strong>Logic synthesis.</strong> Synthesis derives a list of physical components and their interconnections, called a <strong>netlist</strong>, from the HDL model. The netlist can be used to fabricate an integrated circuit or to lay out a printed circuit board.</p>
+<ul>
+<li>Synthesis is similar to compiling a program in a high-level language, except that it produces a database describing the elements and structure of a circuit instead of object code.</li>
+<li>It is based on formal, exact procedures and covers the part of digital design that can be automated.</li>
+<li>Today’s large, complex circuits are possible because of logic synthesis software.</li>
+</ul>
+<p><strong>Timing verification.</strong> Every logic gate has a propagation delay, so a change at a circuit’s input cannot instantly change its output. Propagation delays limit how fast a circuit can operate. Timing verification checks each signal path against these delays. It runs after synthesis has specified the actual devices and before the circuit is released for production.</p>
+<p><strong>Fault simulation.</strong> In VLSI design, fault simulation compares the behavior of an ideal circuit with that of a circuit containing a process-induced flaw (for example, dust or other particles in the clean room). It identifies input stimuli, called test patterns, that reveal the difference. These patterns are used to test fabricated devices so only good devices ship. Test generation and fault simulation may happen at different steps, but always before production, so the circuit’s internal logic can be tested.</p>
+</section>
+<section id="why-verilog" class="level3">
+<h3 class="anchored" data-anchor-id="why-verilog">Why Verilog?</h3>
+<p>Two HDLs are public standards supported by the IEEE: <strong>VHDL</strong> and <strong>Verilog</strong>.</p>
+<ul>
+<li><strong>VHDL</strong> was mandated by the U.S. Department of Defense. The V stands for VHSIC, an acronym for <em>very high speed integrated circuit</em>.</li>
+<li><strong>Verilog</strong> began as a proprietary HDL of Cadence Design Systems. Cadence transferred control to Open Verilog International (OVI), a consortium of companies and universities, as a step toward IEEE standardization.</li>
+</ul>
+<p>VHDL is more difficult to learn. Verilog is easier to describe, learn, and use, so it is the language of this course.</p>
+<p>The Verilog examples also introduce a general <strong>design methodology</strong>: computer-aided modeling of digital systems with a typical HDL. The emphasis is on modeling, verification, and synthesis (both manual and automated) of Verilog models of circuits with specified behavior.</p>
+<p>Verilog was first approved as a standard HDL in <strong>1995</strong>; revised versions were approved in <strong>2001</strong> and <strong>2005</strong>. The course covers only the Verilog features, including those in the latest standard, that support HDL-based design of integrated circuits.</p>
+</section>
+</section>
+<section id="module-declaration" class="level2">
+<h2 class="anchored" data-anchor-id="module-declaration">1.1 Module Declaration</h2>
+<section id="basic-language-rules" class="level3">
+<h3 class="anchored" data-anchor-id="basic-language-rules">Basic language rules</h3>
+<p>The Verilog language reference manual defines precisely which constructs are legal. A Verilog model is written with <strong>keywords</strong>, of which there are about 100. Keywords are predefined, lowercase identifiers that define language constructs. Examples: <code>module</code>, <code>endmodule</code>, <code>input</code>, <code>output</code>, <code>wire</code>, <code>and</code>, <code>or</code>, <code>not</code>.</p>
+<!-- TODO(instructor): the source text prints "end-module" (a hyphenation artifact); the code listing shows the keyword endmodule. This handbook uses endmodule throughout. -->
+<ul>
+<li><strong>Comments.</strong> Text from <code>//</code> to the end of the line is a comment. Multiline comments begin with <code>/*</code> and end with <code>*/</code>. Comments have no effect on simulation.</li>
+<li><strong>White space</strong> is ignored, but it may not appear inside a keyword, a user-defined identifier, an operator, or a number.</li>
+<li><strong>Case sensitivity.</strong> Uppercase and lowercase letters are different (<code>not</code> is not the same as <code>NOT</code>).</li>
+<li><strong>Keywords in this handbook.</strong> They are highlighted in code examples for clarity; highlighting is not a language requirement.</li>
+</ul>
+<p>A <strong>module</strong> is the text enclosed by the keyword pair <code>module</code> … <code>endmodule</code>. It is the fundamental descriptive unit of Verilog: it is declared with <code>module</code> and must always end with <code>endmodule</code>.</p>
+<p>Combinational logic can be described by a schematic connection of gates, a set of Boolean equations, or a truth table. Verilog supports all three styles. We start with a gate-level description of the circuit in Figure 3.37.</p>
+<div class="lab-figure lab-figure-md">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../figures/figure-3.37.png" class="img-fluid figure-img" alt="Schematic with inputs A, B, and C. AND gate G1 takes A and B and drives internal wire w1. Inverter G2 takes C and drives output E. OR gate G3 takes w1 and E and drives output D."></p>
+<figcaption><strong>Figure 3.37.</strong> Circuit to demonstrate an HDL</figcaption>
+</figure>
+</div>
+</div>
+</section>
+<section id="reading-the-first-example" class="level3">
+<h3 class="anchored" data-anchor-id="reading-the-first-example">Reading the first example</h3>
+<div class="lab-example">
+<div class="lab-example-head">
+<p><span class="lab-example-id">HDL Example 3.1</span> Combinational logic modeled with primitives</p>
+</div>
+<p>Describes the circuit of Figure 3.37 as a module that instantiates three primitive gates.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode verilog code-with-copy"><code class="sourceCode verilog"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">// HDL Example 3.1 (combinational logic modeled with primitives)</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> Simple_Circuit <span class="op">(</span>A<span class="op">,</span> B<span class="op">,</span> C<span class="op">,</span> D<span class="op">,</span> E<span class="op">);</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">output</span> D<span class="op">,</span> E<span class="op">;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">input</span>  A<span class="op">,</span> B<span class="op">,</span> C<span class="op">;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">wire</span>   w1<span class="op">;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">and</span> G1 <span class="op">(</span>w1<span class="op">,</span> A<span class="op">,</span> B<span class="op">);</span>   <span class="co">// Optional gate instance name</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">not</span> G2 <span class="op">(</span>E<span class="op">,</span> C<span class="op">);</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">or</span>  G3 <span class="op">(</span>D<span class="op">,</span> w1<span class="op">,</span> E<span class="op">);</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="kw">endmodule</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The example has the following parts, in order:</p>
+<ol type="1">
+<li>An optional <strong>comment</strong> line that helps the reader.</li>
+<li>The <code>module</code> line, which starts the declaration. <code>module</code> is followed by a <strong>name</strong> and a <strong>port list</strong>.</li>
+<li><strong>Direction declarations</strong> (<code>input</code>, <code>output</code>) saying which ports are inputs and which are outputs.</li>
+<li>A <strong>wire</strong> declaration for each internal connection. This circuit has one: the connection <code>w1</code>.</li>
+<li><strong>Gate instantiations</strong> that give the structure of the circuit.</li>
+<li><code>endmodule</code>.</li>
+</ol>
+<p><strong>Identifiers</strong> are names given to modules, variables (such as signals), and other language elements so they can be referenced in the design. The module in this example is named <code>Simple_Circuit</code>. Choose meaningful names. Identifiers:</p>
+<ul>
+<li>are made of alphanumeric characters and the underscore (<code>_</code>),</li>
+<li>are case sensitive,</li>
+<li>must start with a letter or an underscore, and</li>
+<li>cannot start with a digit.</li>
+</ul>
+<p><strong>Port list.</strong> The ports are the interface between the module and its environment. Here they are the circuit’s inputs and outputs. The environment sets the input values; the outputs are determined inside the circuit by the action of the inputs. The list is enclosed in parentheses, its elements are separated by commas, and the statement ends with a semicolon (<code>;</code>).</p>
+<p><strong>Gate instances.</strong> The structure of the circuit is a list of predefined primitive gates (<code>and</code>, <code>not</code>, <code>or</code>). Each listing is a <strong>gate instantiation</strong>, and each resulting gate is a <strong>gate instance</strong>. An instantiation has:</p>
+<ul>
+<li>an optional instance name (G1, G2, …),</li>
+<li>followed by the gate output and inputs, separated by commas and enclosed in parentheses.</li>
+</ul>
+<p>For example, the OR gate of the schematic is the <code>or</code> primitive named G3, with output D and inputs w1 and E.</p>
+<div class="callout callout-style-simple callout-important no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Important Note: Port order and semicolons
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>The <strong>output of a primitive is always listed first</strong>, followed by its inputs. (The ports of a <em>module</em> may be listed in any order.)</li>
+<li>Every statement ends with a semicolon, but there is <strong>no semicolon after <code>endmodule</code></strong>.</li>
+</ul>
+</div>
+</div>
+<div class="callout callout-style-simple callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Key Concept: Declaration versus instantiation
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A Verilog module is <strong>declared</strong>. Its declaration specifies the input-output behavior of the hardware it represents.</p>
+<p>Predefined primitives are <strong>not declared</strong>, because the language defines them and users cannot change them. Primitives are <strong>instantiated</strong> (used), just as gates are used to populate a printed circuit board. Once a module has been declared, it can also be instantiated inside other designs.</p>
+</div>
+</div>
+<div class="callout callout-style-simple callout-tip no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Remember: A Verilog model describes, it does not compute
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><code>Simple_Circuit</code> is not a computational model like a program in an ordinary language. The order of its statements does not specify a sequence of computation. The model states <strong>which primitives form the circuit and how they are connected</strong>. Because the behavior of every gate is defined, the input-output behavior follows implicitly, and the model can be simulated.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="boolean-expressions" class="level2">
+<h2 class="anchored" data-anchor-id="boolean-expressions">1.2 Boolean Expressions</h2>
+<p>Boolean equations describing combinational logic are written in Verilog as a <strong>continuous assignment</strong>: the keyword <code>assign</code> followed by a Boolean expression.</p>
+<p>Verilog uses these symbols so logical operators are distinct from arithmetic operators:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: center;">Symbol</th>
+<th style="text-align: left;">Logic operation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><code>&amp;</code></td>
+<td style="text-align: left;">AND</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><code>|</code></td>
+<td style="text-align: left;">OR</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><code>~</code></td>
+<td style="text-align: left;">NOT (complement)</td>
+</tr>
+</tbody>
+</table>
+<p>The circuit of Figure 3.37 can be written with a single Boolean expression:</p>
+<div class="lab-example">
+<div class="lab-example-head">
+<p>Figure 3.37 as a Boolean expression</p>
+</div>
+<p>Shows one <code>assign</code> statement that describes the same circuit as Example 3.1.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode verilog code-with-copy"><code class="sourceCode verilog"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">assign</span> D <span class="op">=</span> <span class="op">(</span>A <span class="op">&amp;</span> B<span class="op">)</span> <span class="op">|</span> <span class="op">~</span>C<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The next example describes a circuit with two outputs, specified by these Boolean equations:</p>
+<ul>
+<li>E = A + BC + B’D</li>
+<li>F = B’C + BC’D’</li>
+</ul>
+<div class="lab-example">
+<div class="lab-example-head">
+<p><span class="lab-example-id">HDL Example 3.4</span> Combinational circuit modeled with Boolean equations</p>
+</div>
+<p>Uses two <code>assign</code> statements to define outputs E and F from inputs A, B, C, and D.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode verilog code-with-copy"><code class="sourceCode verilog"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">// HDL Example 3.4 (combinational logic modeled with Boolean equations)</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> Circuit_Boolean_CA <span class="op">(</span>E<span class="op">,</span> F<span class="op">,</span> A<span class="op">,</span> B<span class="op">,</span> C<span class="op">,</span> D<span class="op">);</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">output</span> E<span class="op">,</span> F<span class="op">;</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">input</span>  A<span class="op">,</span> B<span class="op">,</span> C<span class="op">,</span> D<span class="op">;</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">assign</span> E <span class="op">=</span> A <span class="op">|</span> <span class="op">(</span>B <span class="op">&amp;</span> C<span class="op">)</span> <span class="op">|</span> <span class="op">(~</span>B <span class="op">&amp;</span> D<span class="op">);</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">assign</span> F <span class="op">=</span> <span class="op">(~</span>B <span class="op">&amp;</span> C<span class="op">)</span> <span class="op">|</span> <span class="op">(</span>B <span class="op">&amp;</span> <span class="op">~</span>C <span class="op">&amp;</span> <span class="op">~</span>D<span class="op">);</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="kw">endmodule</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The circuit has four inputs (A, B, C, D) and two outputs (E, F). The two <code>assign</code> statements describe the Boolean equations. During simulation, the values of E and F are determined <strong>dynamically</strong> by the values of A, B, C, and D: when the test bench changes one or more inputs, the simulator updates E and F.</p>
+<div class="callout callout-style-simple callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Key Concept: Continuous assignment
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The assignment is called <em>continuous</em> because the relationship between the assigned value and the variable is <strong>permanent</strong>. A continuous assignment behaves like combinational logic and has a gate-level equivalent circuit. It is also called <strong>implicit combinational logic</strong>.</p>
+</div>
+</div>
+<p>So far, a digital circuit has been described with HDL statements, a circuit diagram, and a Boolean expression. A third alternative is a <strong>truth table</strong>, covered next.</p>
+</section>
+<section id="user-defined-primitives" class="level2">
+<h2 class="anchored" data-anchor-id="user-defined-primitives">1.3 User-Defined Primitives</h2>
+<p>The gates <code>and</code>, <code>or</code>, and so on are defined by the system and are called <strong>system primitives</strong>. Other languages may use these words differently.</p>
+<p>Users can create additional primitives by defining them in tabular form. These are <strong>user-defined primitives (UDPs)</strong>. One way to specify a circuit in tabular form is a truth table. A UDP does not use <code>module</code> … <code>endmodule</code>; it is declared with the keyword pair <code>primitive</code> … <code>endprimitive</code>.</p>
+<section id="rules-for-a-combinational-udp" class="level3">
+<h3 class="anchored" data-anchor-id="rules-for-a-combinational-udp">Rules for a combinational UDP</h3>
+<ol type="1">
+<li>It is declared with <code>primitive</code>, followed by a name and a port list.</li>
+<li>There can be <strong>only one output</strong>. It must be listed <strong>first</strong> in the port list and declared with <code>output</code>.</li>
+<li>There can be any number of inputs. The order in which they appear in the <code>input</code> declaration must match the order in which they get values in the table.</li>
+<li>The truth table is enclosed between the keywords <code>table</code> and <code>endtable</code>.</li>
+<li>In each row, the input values are listed in order and end with a colon (<code>:</code>). The output is the <strong>last</strong> entry in the row and is followed by a semicolon (<code>;</code>).</li>
+<li>The declaration ends with <code>endprimitive</code>.</li>
+</ol>
+<p>The variable names written above the table are only a comment, for clarity. The system recognizes each variable by its position in the <code>input</code> declaration.</p>
+</section>
+<section id="example-a-udp-and-a-circuit-that-uses-it" class="level3">
+<h3 class="anchored" data-anchor-id="example-a-udp-and-a-circuit-that-uses-it">Example: a UDP and a circuit that uses it</h3>
+<div class="lab-example">
+<div class="lab-example-head">
+<p><span class="lab-example-id">HDL Example 3.5</span> User-defined primitive and a circuit that instantiates it</p>
+</div>
+<p>Defines a UDP from a truth table, then instantiates it, together with an <code>and</code> gate, in a module.</p>
+<p><span class="lab-code-label">UDP declaration</span></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode verilog code-with-copy"><code class="sourceCode verilog"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">// HDL Example 3.5</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">// Verilog model: User-defined primitive</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>primitive UDP_02467 <span class="op">(</span>D<span class="op">,</span> A<span class="op">,</span> B<span class="op">,</span> C<span class="op">);</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">output</span> D<span class="op">;</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">input</span>  A<span class="op">,</span> B<span class="op">,</span> C<span class="op">;</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Truth table for D = f(A, B, C) = sum of minterms (0, 2, 4, 6, 7)</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">table</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="co">//  A  B  C  :  D      // Column header comment</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>      <span class="dv">0</span>  <span class="dv">0</span>  <span class="dv">0</span>  <span class="op">:</span>  <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>      <span class="dv">0</span>  <span class="dv">0</span>  <span class="dv">1</span>  <span class="op">:</span>  <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>      <span class="dv">0</span>  <span class="dv">1</span>  <span class="dv">0</span>  <span class="op">:</span>  <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>      <span class="dv">0</span>  <span class="dv">1</span>  <span class="dv">1</span>  <span class="op">:</span>  <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>      <span class="dv">1</span>  <span class="dv">0</span>  <span class="dv">0</span>  <span class="op">:</span>  <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>      <span class="dv">1</span>  <span class="dv">0</span>  <span class="dv">1</span>  <span class="op">:</span>  <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>      <span class="dv">1</span>  <span class="dv">1</span>  <span class="dv">0</span>  <span class="op">:</span>  <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>      <span class="dv">1</span>  <span class="dv">1</span>  <span class="dv">1</span>  <span class="op">:</span>  <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  <span class="kw">endtable</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>endprimitive</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><span class="lab-code-label">Module that instantiates the UDP</span></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode verilog code-with-copy"><code class="sourceCode verilog"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Verilog model: Circuit instantiation of UDP_02467</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> Circuit_with_UDP_02467 <span class="op">(</span>e<span class="op">,</span> f<span class="op">,</span> a<span class="op">,</span> b<span class="op">,</span> c<span class="op">,</span> d<span class="op">);</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">output</span> e<span class="op">,</span> f<span class="op">;</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">input</span>  a<span class="op">,</span> b<span class="op">,</span> c<span class="op">,</span> d<span class="op">;</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  UDP_02467 <span class="op">(</span>e<span class="op">,</span> a<span class="op">,</span> b<span class="op">,</span> c<span class="op">);</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">and</span>       <span class="op">(</span>f<span class="op">,</span> e<span class="op">,</span> d<span class="op">);</span>   <span class="co">// Optional gate instance name omitted</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="kw">endmodule</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The UDP implements the function f(A, B, C) = Σ(0, 2, 4, 6, 7): the output is 1 for those minterms and 0 otherwise. A user-defined primitive can be instantiated inside other modules just like a system primitive. The module <code>Circuit_with_UDP_02467</code> produces the hardware shown in Figure 3.39.</p>
+<div class="lab-figure lab-figure-md">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../figures/figure-3.39.png" class="img-fluid figure-img" alt="Block diagram. A box labeled UDP_02467 takes inputs A, B, and C and produces output E. Output E also feeds a two-input AND gate whose other input is D. The AND gate output is F."></p>
+<figcaption><strong>Figure 3.39.</strong> Schematic for <code>Circuit_with_UDP_02467</code></figcaption>
+</figure>
+</div>
+</div>
+</section>
+<section id="more-about-udps" class="level3">
+<h3 class="anchored" data-anchor-id="more-about-udps">More about UDPs</h3>
+<ul>
+<li>Verilog uses tabular descriptions for UDPs only. Other HDLs and computer-aided design (CAD) systems use other procedures to specify circuits in tabular form. CAD software can process such tables to derive an efficient gate structure.</li>
+<li><strong>None of Verilog’s predefined primitives describes sequential logic.</strong> A sequential UDP must declare its output as <code>reg</code>, and its table gets an extra column for the next state. The columns are organized as <strong>inputs : state : next state</strong>.</li>
+</ul>
+</section>
+</section>
+<section id="chapter-summary" class="level2">
+<h2 class="anchored" data-anchor-id="chapter-summary">Chapter Summary</h2>
+<ul>
+<li>An HDL describes digital hardware as text and supports design entry, simulation, synthesis, timing verification, and fault simulation.</li>
+<li>A test bench supplies the input stimulus for simulation and is itself written in the HDL.</li>
+<li>A Verilog <strong>module</strong> (<code>module</code> … <code>endmodule</code>) has a name, a port list, direction declarations, internal wires, and gate or other statements.</li>
+<li>Primitives are <strong>instantiated</strong>; modules are <strong>declared</strong>. The output of a primitive is listed first.</li>
+<li>Boolean equations use <code>assign</code> with <code>&amp;</code>, <code>|</code>, <code>~</code>, and the assignment stays active for the whole simulation.</li>
+<li>A UDP describes a circuit by a truth table inside <code>primitive</code> … <code>endprimitive</code>.</li>
+</ul>
+<p>Next: <a href="../chapters/02-combinational-circuit-models.html">Chapter 2</a> compares gate-level, dataflow, and behavioral models of combinational circuits.</p>
+
+
+</section>
+
+<a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a></main> <!-- /main -->
+<script>
+
+/* Keeps the back-to-top button hidden when the page is scrolled all the way to the bottom
+
+   (scroll bounce and late layout changes there can look like an upward scroll). */
+
+(function () {
+
+  function init() {
+
+    var btn = document.getElementById("quarto-back-to-top");
+
+    if (!btn) return;
+
+    function guard() {
+
+      requestAnimationFrame(function () {
+
+        var atBottom = window.innerHeight + window.pageYOffset >= document.documentElement.scrollHeight - 4;
+
+        if (atBottom) btn.style.display = "none";
+
+      });
+
+    }
+
+    window.addEventListener("scroll", guard, { passive: true });
+
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+
+  else init();
+
+})();
+
+</script>
+
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const toggle = window.document.createElement('button');
+      toggle.type = "button";
+      toggle.setAttribute("role", "switch");
+      toggle.setAttribute("aria-checked", "false");
+      toggle.classList.add('top-right');
+      toggle.classList.add('quarto-color-scheme-toggle');
+      toggle.setAttribute("aria-label", "Toggle dark mode");
+      toggle.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      toggle.appendChild(i);
+      // Put the toggle in a landmark of its own, so that landmark navigation
+      // can reach it.
+      //
+      // The container is always a fresh direct child of body, and the toggle is
+      // never moved into page furniture that the theme or the author controls.
+      // The toggle is positioned against the page, so any ancestor that
+      // establishes a containing block captures it: a positioned element or a
+      // grid for position: absolute, and transform, filter, will-change or
+      // contain for position: fixed. A direct child of body has none of these
+      // to inherit, and the shift when one appears is silent and visual.
+      //
+      // ARIA says a document should have at most one banner, and axe reports a
+      // duplicate whether or not the banners carry distinct labels. So use a
+      // header when the page has no banner yet, and a named region otherwise.
+      //
+      // A header is a banner wherever it sits, unless it is inside sectioning
+      // content, so this cannot just look at the children of body: a custom
+      // page layout wraps the title block header in a plain div. An explicit
+      // role="banner" always counts.
+      const sectioning = 'article, aside, main, nav, section, [role="article"], [role="complementary"], [role="main"], [role="navigation"], [role="region"]';
+      const hasBanner = Array.from(
+        window.document.querySelectorAll('header:not([role]), [role="banner"]')
+      ).some(function(el) {
+        return el.hasAttribute("role") || el.closest(sectioning) === null;
+      });
+      const container = window.document.createElement(hasBanner ? "div" : "header");
+      if (hasBanner) {
+        container.setAttribute("role", "region");
+        container.setAttribute("aria-label", "Toggle dark mode");
+      }
+      container.classList.add('quarto-color-scheme-toggle-container');
+      container.appendChild(toggle);
+      window.document.body.appendChild(container);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/vesalbargi\.github\.io\/verilog-hdl-handbook\/");
+      const newWindowLabel = "(opens in a new tab)";
+      const newWindowNoteId = "quarto-ext-newwindow-label";
+      // Links reference one hidden label through aria-describedby, so the
+      // announcement never changes their accessible name.
+      var describeNewWindow = (link) => {
+        if (!window.document.getElementById(newWindowNoteId)) {
+          var newWindowNote = window.document.createElement("span");
+          newWindowNote.id = newWindowNoteId;
+          newWindowNote.hidden = true;
+          newWindowNote.textContent = newWindowLabel;
+          window.document.body.appendChild(newWindowNote);
+        }
+        var describedBy = (link.getAttribute("aria-describedby") || "").split(/\s+/).filter(Boolean);
+        if (!describedBy.includes(newWindowNoteId)) {
+          describedBy.push(newWindowNoteId);
+          link.setAttribute("aria-describedby", describedBy.join(" "));
+        }
+      }
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+      window.quartoDecorateExternalLinks = function (root) {
+     var links = (root || window.document).querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+            describeNewWindow(link);
+          if (!link.classList.contains('no-external-icon')) {
+          }
+        }
+      }
+      };
+      window.quartoDecorateExternalLinks(window.document);
+    // Esc closes the popup (WCAG 1.4.13) and focus leaving both trigger and
+    // popup closes it (WCAG 2.4.11); tippy handles neither for interactive popups.
+    const hideOnEscAndFocusOut = {
+      name: 'hideOnEscAndFocusOut',
+      defaultValue: true,
+      fn(instance) {
+        const dismiss = () => {
+          // A show scheduled by the trigger delay would otherwise reopen it
+          instance.clearDelayTimeouts();
+          instance.hide();
+        };
+        const onKeyDown = (event) => {
+          if (event.key !== 'Escape') {
+            return;
+          }
+          // Keep Esc from also reaching page handlers (e.g. reveal.js overview),
+          // except an open reveal.js slide menu, which Esc should close too.
+          // The menu handles keys only when its keyboard option is on.
+          const menuHandlesEsc = window.Reveal?.getPlugin?.('menu')?.isOpen() &&
+            window.Reveal.getConfig().menu?.keyboard !== false;
+          if (!menuHandlesEsc) {
+            event.stopPropagation();
+          }
+          if (instance.popper.contains(window.document.activeElement)) {
+            // Disabled while refocusing so the focus trigger does not reopen it
+            instance.disable();
+            instance.reference.focus();
+            instance.enable();
+          }
+          dismiss();
+        };
+        const onFocusOut = (event) => {
+          const target = event.relatedTarget;
+          if (target && !instance.reference.contains(target) &&
+              !instance.popper.contains(target)) {
+            dismiss();
+          }
+        };
+        // On the trigger too: a click trigger (code-annotations: select) has no
+        // blur handling. Attached for the instance's lifetime so leaving the
+        // trigger also cancels a show still pending on the trigger delay.
+        instance.reference.addEventListener('focusout', onFocusOut);
+        return {
+          onShow() {
+            window.document.addEventListener('keydown', onKeyDown, true);
+            instance.popper.addEventListener('focusout', onFocusOut);
+          },
+          onHide() {
+            window.document.removeEventListener('keydown', onKeyDown, true);
+            instance.popper.removeEventListener('focusout', onFocusOut);
+          },
+          onDestroy() {
+            instance.reference.removeEventListener('focusout', onFocusOut);
+          },
+        };
+      },
+    };
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+        plugins: [hideOnEscAndFocusOut],
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          // Each band is positioned against its own containing block, which is
+          // not the offsetParent of the lines, so place it from client rects.
+          const placeBand = (band, firstEl, lastEl, codeBlock) => {
+            const container = band.offsetParent;
+            if (container === null) {
+              return;
+            }
+            const containerRect = container.getBoundingClientRect();
+            // Reveal.js scales slides with a transform, so convert client
+            // pixels back to the CSS pixels of the container.
+            const scale = containerRect.height / container.offsetHeight || 1;
+            const firstRect = firstEl.getBoundingClientRect();
+            const lastRect = lastEl.getBoundingClientRect();
+            const top = (firstRect.top - containerRect.top) / scale - container.clientTop + container.scrollTop;
+            const height = (lastRect.bottom - firstRect.top) / scale;
+            band.style.top = top - 2 + "px";
+            band.style.height = height + 4 + "px";
+            if (codeBlock) {
+              // Without the copy button wrapper, the containing block is wider
+              // than the code block, so span the code block explicitly.
+              const blockRect = codeBlock.getBoundingClientRect();
+              band.style.left = (blockRect.left - containerRect.left) / scale - container.clientLeft + container.scrollLeft + "px";
+              band.style.width = blockRect.width / scale + "px";
+            }
+          };
+          if (lineIds.length > 0) {
+            const el = window.document.getElementById(lineIds[0]);
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const parent = el.parentElement.parentElement;
+            // cook up a div (if necessary) and position it
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            placeBand(div, el, lastEl, parent.closest("div.sourceCode") || parent);
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            placeBand(gutterDiv, el, lastEl);
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+  <script type="application/javascript">
+  window.quartoScrollableRegionsLabels = {"code":"Scrollable code","output":"Scrollable output"};
+  </script>
+<nav class="page-navigation" aria-label="Page">
+  <div class="nav-page nav-page-previous">
+      <a href="../index.html" class="pagination-link" aria-label="Home">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Home</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../chapters/02-combinational-circuit-models.html" class="pagination-link" aria-label="Chapter 2">
+        <span class="nav-page-text">Chapter 2</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>Computer Architecture Laboratory | LAB3114</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+<script src="../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

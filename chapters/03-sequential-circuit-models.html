@@ -1,0 +1,1933 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.11.9">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Chapter 3: Synthesizable HDL Models of Sequential Circuits – LAB3114</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../chapters/02-combinational-circuit-models.html" rel="prev">
+<link href="../assets/favicon.svg" rel="icon" type="image/svg+xml">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/scrollable-regions/scrollable-regions.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-4c2e2814ce9a857492911c1eaac7bc64.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-7191fb07fbc61ba70e96a6186d89682a.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-4c2e2814ce9a857492911c1eaac7bc64.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-150f6e08a313be43782d932bfb7aa735.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-682cfce0fad481e7ee3e1723f0110cde.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-150f6e08a313be43782d932bfb7aa735.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;display=swap" rel="stylesheet">
+
+
+
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light"><a id="quarto-skip-link" class="visually-hidden-focusable" href="#quarto-document-content">Skip to main content</a><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          toggle.setAttribute("aria-checked", alternate ? "true" : "false");
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455).
+    // Not run on load: stylesheets are set before first paint there, and
+    // scrolling would undo the scroll to a URL fragment (#14973).
+    // The one pixel nudge keeps the reader where they were.
+    const refreshSafariScrollbar = () => {
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        const scrollY = window.scrollY;
+        window.scrollTo(0, scrollY > 0 ? scrollY - 1 : 1);
+        setTimeout(() => {
+          window.scrollTo(0, scrollY);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const queryPrefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+    const darkModeDefault = queryPrefersDark.matches;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      refreshSafariScrollbar();
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    queryPrefersDark.addEventListener("change", e => {
+      if(window.localStorage.getItem("quarto-color-scheme") !== null)
+        return;
+      const alternate = e.matches
+      toggleColorMode(alternate);
+      refreshSafariScrollbar();
+      localAlternateSentinel = e.matches ? 'alternate' : 'default'; // this is used alongside local storage!
+      toggleGiscusIfUsed(alternate, darkModeDefault);
+    });
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark" aria-label="Site">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Verilog HDL Handbook</span>
+    </a>
+  </div>
+        <div class="quarto-navbar-tools tools-end">
+    <a href="https://github.com/vesalbargi/verilog-hdl-handbook" title="" class="quarto-navigation-tool px-1" aria-label="" target="_blank"><i class="bi bi-github"></i></a>
+  <button type="button" role="switch" aria-checked="false" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode" aria-label="Toggle dark mode"><i class="bi"></i></button>
+</div>
+          <div id="quarto-search" class="" title="Search"></div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav" aria-label="Toolbar">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <a class="flex-grow-1 no-decor" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+          <h1 class="quarto-secondary-nav-title">Chapter 3: Synthesizable HDL Models of Sequential Circuits</h1>
+        </a>     
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto" aria-label="Section">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Home</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-controls="quarto-sidebar-section-1" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-1-label">Chapters</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-1" aria-labelledby="quarto-sidebar-section-1-label" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/01-hardware-description-language.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 1</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/02-combinational-circuit-models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chapter 2</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/03-sequential-circuit-models.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Chapter 3</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" aria-labelledby="toc-title" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview">Overview</a></li>
+  <li><a href="#behavioral-modeling" id="toc-behavioral-modeling" class="nav-link" data-scroll-target="#behavioral-modeling">3.1 Behavioral Modeling</a>
+  <ul class="collapse">
+  <li><a href="#two-kinds-of-behavior" id="toc-two-kinds-of-behavior" class="nav-link" data-scroll-target="#two-kinds-of-behavior">Two kinds of behavior</a></li>
+  <li><a href="#generating-a-clock" id="toc-generating-a-clock" class="nav-link" data-scroll-target="#generating-a-clock">Generating a clock</a></li>
+  <li><a href="#timing-and-event-control" id="toc-timing-and-event-control" class="nav-link" data-scroll-target="#timing-and-event-control">Timing and event control</a></li>
+  <li><a href="#procedural-and-continuous-assignment" id="toc-procedural-and-continuous-assignment" class="nav-link" data-scroll-target="#procedural-and-continuous-assignment">Procedural and continuous assignment</a></li>
+  <li><a href="#blocking-and-nonblocking-assignments" id="toc-blocking-and-nonblocking-assignments" class="nav-link" data-scroll-target="#blocking-and-nonblocking-assignments">Blocking and nonblocking assignments</a></li>
+  </ul></li>
+  <li><a href="#flip-flops-and-latches" id="toc-flip-flops-and-latches" class="nav-link" data-scroll-target="#flip-flops-and-latches">3.2 Flip-Flops and Latches</a>
+  <ul class="collapse">
+  <li><a href="#d-latch" id="toc-d-latch" class="nav-link" data-scroll-target="#d-latch">D latch</a></li>
+  <li><a href="#d-flip-flops" id="toc-d-flip-flops" class="nav-link" data-scroll-target="#d-flip-flops">D flip-flops</a></li>
+  <li><a href="#t-and-jk-flip-flops-from-a-d-flip-flop" id="toc-t-and-jk-flip-flops-from-a-d-flip-flop" class="nav-link" data-scroll-target="#t-and-jk-flip-flops-from-a-d-flip-flop">T and JK flip-flops from a D flip-flop</a></li>
+  </ul></li>
+  <li><a href="#state-diagram" id="toc-state-diagram" class="nav-link" data-scroll-target="#state-diagram">3.3 State Diagram</a>
+  <ul class="collapse">
+  <li><a href="#mealy-model" id="toc-mealy-model" class="nav-link" data-scroll-target="#mealy-model">Mealy model</a></li>
+  <li><a href="#moore-model" id="toc-moore-model" class="nav-link" data-scroll-target="#moore-model">Moore model</a></li>
+  </ul></li>
+  <li><a href="#structural-description-of-clocked-sequential-circuits" id="toc-structural-description-of-clocked-sequential-circuits" class="nav-link" data-scroll-target="#structural-description-of-clocked-sequential-circuits">3.4 Structural Description of Clocked Sequential Circuits</a>
+  <ul class="collapse">
+  <li><a href="#two-models-of-the-same-machine" id="toc-two-models-of-the-same-machine" class="nav-link" data-scroll-target="#two-models-of-the-same-machine">Two models of the same machine</a></li>
+  <li><a href="#how-the-counter-works" id="toc-how-the-counter-works" class="nav-link" data-scroll-target="#how-the-counter-works">How the counter works</a></li>
+  <li><a href="#test-bench-and-results" id="toc-test-bench-and-results" class="nav-link" data-scroll-target="#test-bench-and-results">Test bench and results</a></li>
+  </ul></li>
+  <li><a href="#chapter-summary" id="toc-chapter-summary" class="nav-link" data-scroll-target="#chapter-summary">Chapter Summary</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content" tabindex="-1">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title d-none d-lg-block">Chapter 3: Synthesizable HDL Models of Sequential Circuits</h1>
+<p class="subtitle lead">Computer Architecture Laboratory, LAB3114</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<!--
+  Source: source pages 24-38.
+  Figures: 5.6 (section 3.2), 5.21, 5.22 and 5.23 (section 3.3), 5.20 and 5.24 (section 3.4). Tables: none.
+  Code placeholders: 14 examples / 23 code blocks.
+  The source ends on page 38 in the middle of the alternative Toggle_flip_flop model of Example 5.7.
+  Instructor-review items for this chapter are listed in instructor-review.md.
+-->
+<div class="lab-objectives">
+<p><strong>Learning objectives</strong></p>
+<ul>
+<li>Distinguish <code>initial</code> (single-pass) behavior from <code>always</code> (cyclic) behavior and know when each is used.</li>
+<li>Generate a clock and control timing with the <code>#</code> delay and <code>@</code> event operators.</li>
+<li>Choose between blocking (<code>=</code>) and nonblocking (<code>&lt;=</code>) assignments.</li>
+<li>Model latches and flip-flops, including an asynchronous reset, in a form a synthesis tool can infer.</li>
+<li>Model Mealy and Moore state machines from their state diagrams.</li>
+<li>Describe a clocked sequential circuit structurally and verify it with a test bench.</li>
+</ul>
+</div>
+<section id="overview" class="level2">
+<h2 class="anchored" data-anchor-id="overview">Overview</h2>
+<!-- Unnumbered lead-in text that precedes section 3.1 in the source (page 24). -->
+<p>Behavioral models are abstract representations of the functionality of digital hardware. Designers write them to describe quickly <strong>how a circuit is to operate</strong>, without first specifying its hardware. This chapter continues the discussion of behavioral modeling from <a href="../chapters/02-combinational-circuit-models.html">Chapter 2</a> and presents flip-flops and sequential circuits, in preparation for modeling more complex circuits.</p>
+</section>
+<section id="behavioral-modeling" class="level2">
+<h2 class="anchored" data-anchor-id="behavioral-modeling">3.1 Behavioral Modeling</h2>
+<section id="two-kinds-of-behavior" class="level3">
+<h3 class="anchored" data-anchor-id="two-kinds-of-behavior">Two kinds of behavior</h3>
+<p>Verilog has two kinds of abstract behavior. Both begin executing when the simulator starts, at time t = 0.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: left;"><code>initial</code></th>
+<th style="text-align: left;"><code>always</code></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Name</td>
+<td style="text-align: left;">Single-pass behavior</td>
+<td style="text-align: left;">Cyclic behavior</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">What it contains</td>
+<td style="text-align: left;">One statement, or a block of statements enclosed by <code>begin</code> … <code>end</code> or <code>fork</code> … <code>join</code></td>
+<td style="text-align: left;">Statements that are re-executed</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Ends</td>
+<td style="text-align: left;">Expires after its statement executes</td>
+<td style="text-align: left;">Runs again and again until the simulation is stopped</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Typical use</td>
+<td style="text-align: left;">Stimulus signals in a <strong>test bench</strong></td>
+<td style="text-align: left;">Circuit behavior</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Accepted by synthesis tools</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: left;">Yes</td>
+</tr>
+</tbody>
+</table>
+<p>A module can contain any number of <code>initial</code> or <code>always</code> statements. They execute <strong>concurrently</strong> with each other, starting at time 0, and can interact through shared variables.</p>
+<!-- TODO(instructor): the source says synthesis tools do not accept initial. Some modern FPGA tools do accept initial blocks for register initial values; consider whether to qualify this statement for your lab toolchain. -->
+<div class="callout callout-style-simple callout-important no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Important Note: Use <code>initial</code> for stimulus only
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Designers use single-pass behavior primarily to describe <strong>stimulus signals in a test bench</strong>, never to model the behavior of a circuit.</p>
+</div>
+</div>
+<p>A word description of a simple D flip-flop shows how <code>always</code> works: <em>whenever the rising edge of the clock occurs, if the reset input is asserted, the output Q gets 0; otherwise Q gets the value of input D.</em> The statements triggered by the clock repeat until the simulation ends. Section 3.2 shows this in Verilog.</p>
+</section>
+<section id="generating-a-clock" class="level3">
+<h3 class="anchored" data-anchor-id="generating-a-clock">Generating a clock</h3>
+<p>An <code>initial</code> statement runs once, starting at the beginning of simulation. It is useful for generating input signals. To simulate a sequential circuit you also need a <strong>clock source</strong> to trigger the flip-flops. Three ways to provide a free-running clock follow.</p>
+<p><strong>Version 1: a loop with <code>repeat</code>.</strong></p>
+<div class="lab-example">
+<div class="lab-example-head">
+<p>Clock from one <code>initial</code> block with <code>repeat</code></p>
+</div>
+<p>Sets <code>clock</code> to 0, then repeats 30 times: wait 10 time units, complement <code>clock</code>.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode verilog code-with-copy"><code class="sourceCode verilog"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">initial</span> <span class="kw">begin</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  clock <span class="op">=</span> <span class="bn">1'b0</span><span class="op">;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">repeat</span> <span class="op">(</span><span class="dv">30</span><span class="op">)</span> <span class="bn">#10</span> clock <span class="op">=</span> <span class="op">~</span>clock<span class="op">;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The <code>initial</code> block holds two statements inside <code>begin</code> and <code>end</code>. The first sets <code>clock</code> to 0 at time 0. The second is a loop that repeats 30 times, waiting 10 time units and then complementing <code>clock</code>. This produces <strong>15 clock cycles</strong>, each with a cycle time of <strong>20 time units</strong>.</p>
+<p><strong>Version 2: separate <code>initial</code> and <code>always</code> statements.</strong></p>
+<div class="lab-example">
+<div class="lab-example-head">
+<p>Clock from <code>initial</code>, a stopwatch, and <code>always</code></p>
+</div>
+<p>Uses one <code>initial</code> to set the clock, a second <code>initial</code> to end the simulation, and an <code>always</code> statement as the clock generator.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode verilog code-with-copy"><code class="sourceCode verilog"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">initial</span> <span class="kw">begin</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  clock <span class="op">=</span> <span class="bn">1'b0</span><span class="op">;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="kw">initial</span> <span class="bn">#300</span> <span class="dt">$finish</span><span class="op">;</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="kw">always</span> <span class="bn">#10</span> clock <span class="op">=</span> <span class="op">~</span>clock<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ul>
+<li>The first <code>initial</code> behavior has one statement: it sets <code>clock</code> to 0 at time 0 and then <strong>expires</strong>.</li>
+<li>The second single-pass behavior is a <strong>stopwatch</strong>. The system task <code>$finish</code> ends the simulation unconditionally after 300 time units. With only one statement, <code>begin</code> … <code>end</code> is not needed.</li>
+<li>After 10 time units, the <code>always</code> statement repeatedly complements <code>clock</code>, giving a clock generator with a cycle time of 20 time units.</li>
+<li>The three behavioral statements can be written in <strong>any order</strong>.</li>
+</ul>
+<p><strong>Version 3: a <code>forever</code> loop.</strong></p>
+<div class="lab-example">
+<div class="lab-example-head">
+<p>Clock from a <code>forever</code> loop</p>
+</div>
+<p>Initializes <code>clock</code>, then complements it every 10 time units without end.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode verilog code-with-copy"><code class="sourceCode verilog"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">initial</span> <span class="kw">begin</span> clock <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> <span class="kw">forever</span> <span class="bn">#10</span> clock <span class="op">=</span> <span class="op">~</span>clock<span class="op">;</span> <span class="kw">end</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>This version initializes the clock and then executes an indefinite loop (<code>forever</code>) in which <code>clock</code> is complemented after a delay of 10 time steps. The single-pass behavior never finishes, so it <strong>does not expire</strong>; another behavior must terminate the simulation.</p>
+</section>
+<section id="timing-and-event-control" class="level3">
+<h3 class="anchored" data-anchor-id="timing-and-event-control">Timing and event control</h3>
+<p>The activity of either kind of behavior can be controlled by:</p>
+<ul>
+<li>the <strong>delay operator <code>#</code></strong>, which suspends execution until a specified time has elapsed. It is commonly used in single-pass behaviors, such as test-bench stimulus.</li>
+<li>the <strong>event control operator <code>@</code></strong>, which suspends activity until an event occurs. An event can be an unconditional change of a signal value (for example, <code>@ A</code>) or a specified transition of a signal value (for example, <code>@ (posedge clock)</code>).</li>
+</ul>
+<p>The general form of an <code>always</code> statement with an event control expression is:</p>
+<div class="lab-example">
+<div class="lab-example-head">
+<p>General form of an <code>always</code> block</p>
+</div>
+<p>Shows the template: an event control expression followed by procedural assignment statements in <code>begin</code> … <code>end</code>.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode verilog code-with-copy"><code class="sourceCode verilog"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">always</span> <span class="op">@</span> <span class="op">(</span><span class="dt">event</span> control expression<span class="op">)</span> <span class="kw">begin</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Procedural assignment statements that execute when the condition is met</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ul>
+<li>The <strong>event control expression</strong> (also called the <strong>sensitivity list</strong>) is the condition that must occur to start executing the procedural statements.</li>
+<li>The variables on the <strong>left-hand side</strong> of procedural statements must be of type <code>reg</code> and declared as such.</li>
+<li>The <strong>right-hand side</strong> can be any expression built from Verilog operators.</li>
+<li>Statements in the block execute <strong>sequentially, top to bottom</strong>. After the last one, the behavior waits for the event control expression to be satisfied again.</li>
+</ul>
+<p>A sensitivity list can specify <strong>level-sensitive</strong> events, <strong>edge-sensitive</strong> events, or a combination of the two. Designers do not use the combination, because synthesis tools cannot translate it into hardware.</p>
+<ul>
+<li><strong>Level-sensitive</strong> events occur in combinational circuits and in latches. A change in <code>A</code>, <code>B</code>, or <code>C</code> starts an <code>always</code> block whose list contains those three signals.</li>
+<li><strong>Edge-sensitive</strong> events occur in synchronous sequential circuits, where flip-flops change only in response to a clock transition: a positive edge or a negative edge, <strong>but not both</strong>. Verilog provides the keywords <strong><code>posedge</code></strong> and <strong><code>negedge</code></strong>.</li>
+</ul>
+<p>For example, a list containing <code>posedge clock</code> and <code>negedge reset</code> starts the block only if the clock makes a positive transition or reset makes a negative transition. Verilog 2001 and 2005 allow a comma-separated list.</p>
+<div class="lab-example">
+<div class="lab-example-head">
+<p>Event control expressions</p>
+</div>
+<p>Shows three forms: a level-sensitive list (<code>A or B or C</code>), an edge-sensitive list with <code>or</code> (Verilog 1995), and the same list with a comma (Verilog 2001, 2005).</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode verilog code-with-copy"><code class="sourceCode verilog"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">always</span> <span class="op">@</span> <span class="op">(</span>A <span class="dt">or</span> B <span class="dt">or</span> C<span class="op">)</span>                       <span class="co">// level-sensitive</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">always</span> <span class="op">@</span> <span class="op">(</span><span class="kw">posedge</span> clock <span class="dt">or</span> <span class="kw">negedge</span> reset<span class="op">)</span>   <span class="co">// Verilog 1995</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="kw">always</span> <span class="op">@</span> <span class="op">(</span><span class="kw">posedge</span> clock<span class="op">,</span> <span class="kw">negedge</span> reset<span class="op">)</span>     <span class="co">// Verilog 2001, 2005</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: left;">Verilog 1995</th>
+<th style="text-align: left;">Verilog 2001, 2005</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Separator in the event control expression</td>
+<td style="text-align: left;">Keyword <code>or</code></td>
+<td style="text-align: left;">Comma</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="procedural-and-continuous-assignment" class="level3">
+<h3 class="anchored" data-anchor-id="procedural-and-continuous-assignment">Procedural and continuous assignment</h3>
+<p>A <strong>procedural assignment</strong> assigns a logic value to a variable inside an <code>initial</code> or <code>always</code> statement. A <strong>continuous assignment</strong> (<a href="../chapters/02-combinational-circuit-models.html">Chapter 2</a>) is different:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: left;">Continuous assignment</th>
+<th style="text-align: left;">Procedural assignment</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Where</td>
+<td style="text-align: left;">Outside behaviors, with <code>assign</code></td>
+<td style="text-align: left;">Inside <code>initial</code> or <code>always</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">When it updates</td>
+<td style="text-align: left;">Whenever a variable on its right-hand side changes (implicit level-sensitive list)</td>
+<td style="text-align: left;">Only when the statement is executed</td>
+</tr>
+</tbody>
+</table>
+<p>For example, the clock was complemented only when the statement <code>clock = ~clock</code> executed, which did not happen until 10 time units after the start of simulation. A <code>reg</code> variable <strong>keeps its value</strong> until a procedural assignment gives it a new one.</p>
+</section>
+<section id="blocking-and-nonblocking-assignments" class="level3">
+<h3 class="anchored" data-anchor-id="blocking-and-nonblocking-assignments">Blocking and nonblocking assignments</h3>
+<p>There are two kinds of procedural assignment, distinguished by their operator.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;"></th>
+<th style="text-align: left;">Blocking</th>
+<th style="text-align: left;">Nonblocking</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">Operator</td>
+<td style="text-align: left;"><code>=</code></td>
+<td style="text-align: left;"><code>&lt;=</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">Execution</td>
+<td style="text-align: left;">Statements run <strong>sequentially</strong>, in the order listed</td>
+<td style="text-align: left;">Right-hand sides of the whole set are evaluated first; left-hand sides are assigned <strong>afterward, together</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Consider two procedural assignments, first as <strong>blocking</strong>:</p>
+<div class="lab-example">
+<div class="lab-example-head">
+<p>Blocking assignments</p>
+</div>
+<p>Transfers <code>A</code> into <code>B</code>, then increments the new <code>B</code> and transfers it to <code>C</code>.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode verilog code-with-copy"><code class="sourceCode verilog"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>B <span class="op">=</span> A<span class="op">;</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>C <span class="op">=</span> B <span class="op">+</span> <span class="dv">1</span><span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The first statement transfers A into B. The second increments the new value of B and transfers it to C. When both finish, <strong>C contains A + 1</strong>.</p>
+<p>Now the same two statements as <strong>nonblocking</strong>:</p>
+<div class="lab-example">
+<div class="lab-example-head">
+<p>Nonblocking assignments</p>
+</div>
+<p>The same two assignments written with the nonblocking operator.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode verilog code-with-copy"><code class="sourceCode verilog"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>B <span class="op">&lt;=</span> A<span class="op">;</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>C <span class="op">&lt;=</span> B <span class="op">+</span> <span class="dv">1</span><span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The right-hand sides are evaluated and stored in temporary locations: the value of A in one, the value of B + 1 in another. Only after all the expressions in the block are evaluated are the left-hand sides assigned. Now <strong>C contains the original value of B, plus 1</strong>.</p>
+<div class="callout callout-style-simple callout-tip no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Remember: Which assignment to use
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>Use <strong>blocking</strong> assignments when sequential ordering is imperative, and in cyclic behavior that is level sensitive (combinational logic).</li>
+<li>Use <strong>nonblocking</strong> assignments when modeling concurrent execution, for example <strong>edge-sensitive</strong> behavior such as synchronous, concurrent register transfers, and when modeling <strong>latched</strong> behavior.</li>
+</ul>
+<p>Nonblocking assignments are imperative in register-transfer-level design: they model the concurrent operations of physical hardware synchronized by a common clock.</p>
+</div>
+</div>
+<p>Today’s designers are expected to know which HDL features are useful in practice and how to avoid the ones that are not. Following these rules prevents conditions that lead synthesis tools astray and create <strong>mismatches between the behavior of a model and the behavior of the hardware</strong> that synthesis produces.</p>
+</section>
+</section>
+<section id="flip-flops-and-latches" class="level2">
+<h2 class="anchored" data-anchor-id="flip-flops-and-latches">3.2 Flip-Flops and Latches</h2>
+<p>HDL Examples 5.1 through 5.4 describe various flip-flops and a D latch.</p>
+<section id="d-latch" class="level3">
+<h3 class="anchored" data-anchor-id="d-latch">D latch</h3>
+<p>A D latch is <strong>transparent</strong>: its output follows a change in the data input for as long as the enable input is asserted.</p>
+<div class="lab-figure lab-figure-sm">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../figures/figure-5.6.png" class="img-fluid figure-img" alt="Logic diagram of a D latch with data input D, enable input, and output Q."></p>
+<figcaption><strong>Figure 5.6.</strong> D latch</figcaption>
+</figure>
+</div>
+</div>
+<div class="lab-example">
+<div class="lab-example-head">
+<p><span class="lab-example-id">HDL Example 5.1</span> D latch</p>
+</div>
+<p>Describes a latch with inputs <code>D</code> and <code>enable</code> and output <code>Q</code>, in the original syntax and in the alternative (Verilog 2001) syntax.</p>
+<p><span class="lab-code-label">Original syntax</span></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode verilog code-with-copy"><code class="sourceCode verilog"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">// HDL Example 5.1: Description of D latch (See Fig. 5.6)</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> D_latch <span class="op">(</span>Q<span class="op">,</span> D<span class="op">,</span> enable<span class="op">);</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">output</span> Q<span class="op">;</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">input</span>  D<span class="op">,</span> enable<span class="op">;</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">reg</span>    Q<span class="op">;</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">always</span> <span class="op">@(</span>enable <span class="dt">or</span> D<span class="op">)</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">if</span> <span class="op">(</span>enable<span class="op">)</span> Q <span class="op">&lt;=</span> D<span class="op">;</span>   <span class="co">// Same as: if (enable == 1)</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="kw">endmodule</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><span class="lab-code-label">Alternative syntax (output declared as <code>reg</code> in the port list)</span></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode verilog code-with-copy"><code class="sourceCode verilog"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Alternative syntax (Verilog 2001, 2005)</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="co">// (use in place of the model above; do not compile both)</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> D_latch <span class="op">(</span><span class="dt">output</span> <span class="dt">reg</span> Q<span class="op">,</span> <span class="dt">input</span> enable<span class="op">,</span> D<span class="op">);</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">always</span> <span class="op">@(</span>enable<span class="op">,</span> D<span class="op">)</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">if</span> <span class="op">(</span>enable<span class="op">)</span> Q <span class="op">&lt;=</span> D<span class="op">;</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="kw">endmodule</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ul>
+<li>The module has two inputs, <code>D</code> and <code>enable</code>, and one output, <code>Q</code>.</li>
+<li><code>Q</code> is assigned in a procedural statement, so it must be declared <code>reg</code>.</li>
+<li>Latches respond to input <strong>levels</strong>, so both inputs are listed <strong>without edge qualifiers</strong> in the event control expression.</li>
+<li>A single procedural assignment transfers <code>D</code> to <code>Q</code> if <code>enable</code> is true (logic 1). It is executed every time <code>D</code> changes while <code>enable</code> is 1.</li>
+</ul>
+</section>
+<section id="d-flip-flops" class="level3">
+<h3 class="anchored" data-anchor-id="d-flip-flops">D flip-flops</h3>
+<p>A D-type flip-flop is the simplest example of a sequential machine. Example 5.2 describes two positive-edge D flip-flops in two modules: the first responds only to the clock; the second adds an <strong>asynchronous reset</strong>.</p>
+<div class="lab-example">
+<div class="lab-example-head">
+<p><span class="lab-example-id">HDL Example 5.2</span> D flip-flops without and with asynchronous reset</p>
+</div>
+<p>Two modules: a positive-edge D flip-flop, and one with an active-low asynchronous reset input.</p>
+<p><span class="lab-code-label">D flip-flop without reset</span></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode verilog code-with-copy"><code class="sourceCode verilog"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">// HDL Example 5.2</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co">// D flip-flop without reset</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> D_FF <span class="op">(</span>Q<span class="op">,</span> D<span class="op">,</span> Clk<span class="op">);</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">output</span> Q<span class="op">;</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">input</span>  D<span class="op">,</span> Clk<span class="op">;</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">reg</span>    Q<span class="op">;</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">always</span> <span class="op">@(</span><span class="kw">posedge</span> Clk<span class="op">)</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    Q <span class="op">&lt;=</span> D<span class="op">;</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="kw">endmodule</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><span class="lab-code-label">D flip-flop with asynchronous reset (Verilog 2001, 2005)</span></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode verilog code-with-copy"><code class="sourceCode verilog"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">// D flip-flop with asynchronous reset (V2001, V2005)</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> DFF <span class="op">(</span><span class="dt">output</span> <span class="dt">reg</span> Q<span class="op">,</span> <span class="dt">input</span> D<span class="op">,</span> Clk<span class="op">,</span> rst<span class="op">);</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">always</span> <span class="op">@(</span><span class="kw">posedge</span> Clk<span class="op">,</span> <span class="kw">negedge</span> rst<span class="op">)</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">if</span> <span class="op">(~</span>rst<span class="op">)</span> Q <span class="op">&lt;=</span> <span class="bn">1'b0</span><span class="op">;</span>   <span class="co">// Same as: if (rst == 0)</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">else</span>      Q <span class="op">&lt;=</span> D<span class="op">;</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="kw">endmodule</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ul>
+<li>Output <code>Q</code> must be declared <code>reg</code> as well as <code>output</code>, because it is the target of a procedural assignment.</li>
+<li><code>posedge</code> makes the transfer of <code>D</code> into <code>Q</code> happen on the <strong>positive clock edge</strong> of <code>Clk</code>. A change in <code>D</code> at any other time does not change <code>Q</code>.</li>
+</ul>
+<div class="callout callout-style-simple callout-important no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Important Note: Coding an asynchronous reset so tools can infer the clock
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A designer knows which signal is the clock, but <code>clock</code> is not an identifier that synthesis tools recognize automatically. The description must be written so that the tool can infer the clock. The event expression can contain any number of edge events (<code>posedge</code> or <code>negedge</code>); one of them must be the clock event and the others are conditions for asynchronous logic. Follow three rules:</p>
+<ol type="1">
+<li>Each <code>if</code> or <code>else if</code> statement in the procedural block corresponds to an <strong>asynchronous event</strong>.</li>
+<li>The last <code>else</code> corresponds to the <strong>clock event</strong>.</li>
+<li>The asynchronous events are <strong>tested first</strong>.</li>
+</ol>
+</div>
+</div>
+<p>In the second module, the <code>negedge rst</code> event is asynchronous, because it matches the <code>if (~rst)</code> test. While <code>rst</code> is 0, <code>Q</code> is cleared to 0, and a positive clock transition has no effect. Only when <code>rst</code> is 1 can the positive clock edge transfer <code>D</code> into <code>Q</code>.</p>
+<div class="callout callout-style-simple callout-tip no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Remember: Always provide a reset
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Hardware always has a reset signal. Every model of edge-sensitive behavior should include a <strong>reset (or preset) input</strong>. Without it, the initial state of the flip-flops cannot be determined, and a sequential circuit cannot be tested in HDL simulation unless an initial state can be assigned with an input signal.</p>
+</div>
+</div>
+</section>
+<section id="t-and-jk-flip-flops-from-a-d-flip-flop" class="level3">
+<h3 class="anchored" data-anchor-id="t-and-jk-flip-flops-from-a-d-flip-flop">T and JK flip-flops from a D flip-flop</h3>
+<p>Example 5.3 builds a T flip-flop and a JK flip-flop from a D flip-flop and gates. Each circuit is described by the <strong>characteristic equation</strong> of the flip-flop:</p>
+<ul>
+<li>T flip-flop: Q(t + 1) = Q ⊕ T</li>
+<li>JK flip-flop: Q(t + 1) = JQ’ + K’Q</li>
+</ul>
+<div class="lab-example">
+<div class="lab-example-head">
+<p><span class="lab-example-id">HDL Example 5.3</span> T and JK flip-flops built from a D flip-flop and gates</p>
+</div>
+<p>Each module computes the D input from the characteristic equation with a continuous assignment and instantiates a D flip-flop.</p>
+<p><span class="lab-code-label">Module <code>TFF</code></span></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode verilog code-with-copy"><code class="sourceCode verilog"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">// HDL Example 5.3</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co">// T flip-flop from D flip-flop and gates</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> TFF <span class="op">(</span>Q<span class="op">,</span> T<span class="op">,</span> Clk<span class="op">,</span> rst<span class="op">);</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">output</span> Q<span class="op">;</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">input</span>  T<span class="op">,</span> Clk<span class="op">,</span> rst<span class="op">;</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">wire</span>   DT<span class="op">;</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">assign</span> DT <span class="op">=</span> Q <span class="op">^</span> T<span class="op">;</span>   <span class="co">// Continuous assignment</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Instantiate the D flip-flop</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  DFF TF1 <span class="op">(</span>Q<span class="op">,</span> DT<span class="op">,</span> Clk<span class="op">,</span> rst<span class="op">);</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="kw">endmodule</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><span class="lab-code-label">Module <code>JKFF</code> (Verilog 2001, 2005)</span></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode verilog code-with-copy"><code class="sourceCode verilog"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">// JK flip-flop from D flip-flop and gates (V2001, V2005)</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> JKFF <span class="op">(</span><span class="dt">output</span> Q<span class="op">,</span> <span class="dt">input</span> J<span class="op">,</span> K<span class="op">,</span> Clk<span class="op">,</span> rst<span class="op">);</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">wire</span> JK<span class="op">;</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">assign</span> JK <span class="op">=</span> <span class="op">(</span>J <span class="op">&amp;</span> <span class="op">~</span>Q<span class="op">)</span> <span class="op">|</span> <span class="op">(~</span>K <span class="op">&amp;</span> Q<span class="op">);</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Instantiate D flip-flop</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  DFF JK1 <span class="op">(</span>Q<span class="op">,</span> JK<span class="op">,</span> Clk<span class="op">,</span> rst<span class="op">);</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="kw">endmodule</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><span class="lab-code-label">Supporting module: D flip-flop (Verilog 2001, 2005)</span></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode verilog code-with-copy"><code class="sourceCode verilog"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">// D flip-flop (V2001, V2005)</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> DFF <span class="op">(</span><span class="dt">output</span> <span class="dt">reg</span> Q<span class="op">,</span> <span class="dt">input</span> D<span class="op">,</span> Clk<span class="op">,</span> rst<span class="op">);</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">always</span> <span class="op">@(</span><span class="kw">posedge</span> Clk<span class="op">,</span> <span class="kw">negedge</span> rst<span class="op">)</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">if</span> <span class="op">(~</span>rst<span class="op">)</span> Q <span class="op">&lt;=</span> <span class="bn">1'b0</span><span class="op">;</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">else</span>      Q <span class="op">&lt;=</span> D<span class="op">;</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="kw">endmodule</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The first module, <code>TFF</code>, instantiates <code>DFF</code>. The wire <code>DT</code> is assigned the exclusive-OR of <code>Q</code> and <code>T</code>, which is what building a T flip-flop from a D flip-flop requires. Replacing <code>D</code> with <code>DT</code> in the instantiation produces the T flip-flop. The JK flip-flop is built the same way: its characteristic equation defines the replacement for <code>D</code> in the instantiated <code>DFF</code>.</p>
+<p>Example 5.4 describes the JK flip-flop another way, using the <strong>characteristic table</strong> instead of the characteristic equation.</p>
+<div class="lab-example">
+<div class="lab-example-head">
+<p><span class="lab-example-id">HDL Example 5.4</span> JK flip-flop from its characteristic table</p>
+</div>
+<p>Uses a <code>case</code> statement on the concatenation of <code>J</code> and <code>K</code> to choose the next state of <code>Q</code> at the positive clock edge.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode verilog code-with-copy"><code class="sourceCode verilog"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">// HDL Example 5.4</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="co">// JK flip-flop from its characteristic table</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> JK_FF <span class="op">(</span><span class="dt">input</span> J<span class="op">,</span> K<span class="op">,</span> Clk<span class="op">,</span> <span class="dt">output</span> <span class="dt">reg</span> Q<span class="op">,</span> <span class="dt">output</span> Q_b<span class="op">);</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">assign</span> Q_b <span class="op">=</span> <span class="op">~</span>Q<span class="op">;</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">always</span> <span class="op">@(</span><span class="kw">posedge</span> Clk<span class="op">)</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">case</span> <span class="op">({</span>J<span class="op">,</span> K<span class="op">})</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>      <span class="bn">2'b00</span><span class="op">:</span> Q <span class="op">&lt;=</span> Q<span class="op">;</span>    <span class="co">// No change</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>      <span class="bn">2'b01</span><span class="op">:</span> Q <span class="op">&lt;=</span> <span class="bn">1'b0</span><span class="op">;</span> <span class="co">// Reset</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>      <span class="bn">2'b10</span><span class="op">:</span> Q <span class="op">&lt;=</span> <span class="bn">1'b1</span><span class="op">;</span> <span class="co">// Set</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>      <span class="bn">2'b11</span><span class="op">:</span> Q <span class="op">&lt;=</span> <span class="op">~</span>Q<span class="op">;</span>   <span class="co">// Toggle</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">endcase</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="kw">endmodule</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The <code>case</code> statement checks the two-bit number formed by concatenating <code>J</code> and <code>K</code>. The case expression <code>{J, K}</code> is compared with the case items in order, and the first match is executed. Because the concatenation is a two-bit number, it can be 00, 01, 10, or 11; the first bit is <code>J</code> and the second is <code>K</code>. The four conditions give the value of the next state of <code>Q</code> after a positive clock edge.</p>
+</section>
+</section>
+<section id="state-diagram" class="level2">
+<h2 class="anchored" data-anchor-id="state-diagram">3.3 State Diagram</h2>
+<p>An HDL model of a sequential circuit can follow the format of the circuit’s <strong>state diagram</strong>.</p>
+<section id="mealy-model" class="level3">
+<h3 class="anchored" data-anchor-id="mealy-model">Mealy model</h3>
+<p>HDL Example 5.5 models the Mealy zero-detecting machine described by its state diagram.</p>
+<!-- TODO(instructor): the source OCR reads "the tare machine described by the state diagram"; probably "the zero-detector machine". Fig. 5.16 is not available as a PNG. -->
+<ul>
+<li>The input, output, clock, and reset are declared in the usual way.</li>
+<li>The flip-flop state is held in two variables: <strong><code>state</code></strong> (present state) and <strong><code>next_state</code></strong> (next value).</li>
+<li>State codes are assigned with a <strong><code>parameter</code></strong> statement. Verilog allows constants to be defined in a module with the keyword <code>parameter</code>. The four states S0 through S3 are assigned binary 00 through 11.</li>
+<li>The notation <code>S2 = 2'b10</code> is preferable to <code>S2 = 2</code>: the first uses only two bits, while the second creates a binary number with 32 (or 64) bits.</li>
+</ul>
+<div class="lab-example">
+<div class="lab-example-head">
+<p><span class="lab-example-id">HDL Example 5.5</span> Mealy FSM zero detector, with test bench</p>
+</div>
+<p>A three-<code>always</code>-block model of the Mealy machine (state register, next-state logic, output logic), followed by a test bench that applies a clock, reset pulses, and an input sequence with <code>fork</code> … <code>join</code>.</p>
+<p><span class="lab-code-label">Module <code>Mealy_Zero_Detector</code></span></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode verilog code-with-copy"><code class="sourceCode verilog"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">// HDL Example 5.5</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="co">// Mealy FSM zero detector (See Fig. 5.16)</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> Mealy_Zero_Detector <span class="op">(</span><span class="dt">output</span> <span class="dt">reg</span> y_out<span class="op">,</span> <span class="dt">input</span> x_in<span class="op">,</span> clock<span class="op">,</span> reset<span class="op">);</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">reg</span> <span class="op">[</span><span class="dv">1</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span> state<span class="op">,</span> next_state<span class="op">;</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">parameter</span> S0 <span class="op">=</span> <span class="bn">2'b00</span><span class="op">,</span> S1 <span class="op">=</span> <span class="bn">2'b01</span><span class="op">,</span> S2 <span class="op">=</span> <span class="bn">2'b10</span><span class="op">,</span> S3 <span class="op">=</span> <span class="bn">2'b11</span><span class="op">;</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="co">// State register</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">always</span> <span class="op">@(</span><span class="kw">posedge</span> clock<span class="op">,</span> <span class="kw">negedge</span> reset<span class="op">)</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">if</span> <span class="op">(</span>reset <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> state <span class="op">&lt;=</span> S0<span class="op">;</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">else</span>            state <span class="op">&lt;=</span> next_state<span class="op">;</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Next-state logic</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>  <span class="kw">always</span> <span class="op">@(</span>state<span class="op">,</span> x_in<span class="op">)</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">case</span> <span class="op">(</span>state<span class="op">)</span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>      <span class="dv">S0:</span> <span class="kw">if</span> <span class="op">(</span>x_in<span class="op">)</span>  next_state <span class="op">=</span> S1<span class="op">;</span> <span class="kw">else</span> next_state <span class="op">=</span> S0<span class="op">;</span></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>      <span class="dv">S1:</span> <span class="kw">if</span> <span class="op">(</span>x_in<span class="op">)</span>  next_state <span class="op">=</span> S3<span class="op">;</span> <span class="kw">else</span> next_state <span class="op">=</span> S0<span class="op">;</span></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>      <span class="dv">S2:</span> <span class="kw">if</span> <span class="op">(~</span>x_in<span class="op">)</span> next_state <span class="op">=</span> S0<span class="op">;</span> <span class="kw">else</span> next_state <span class="op">=</span> S2<span class="op">;</span></span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>      <span class="dv">S3:</span> <span class="kw">if</span> <span class="op">(</span>x_in<span class="op">)</span>  next_state <span class="op">=</span> S2<span class="op">;</span> <span class="kw">else</span> next_state <span class="op">=</span> S0<span class="op">;</span></span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">endcase</span></span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Output logic</span></span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>  <span class="kw">always</span> <span class="op">@(</span>state<span class="op">,</span> x_in<span class="op">)</span></span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>    <span class="kw">case</span> <span class="op">(</span>state<span class="op">)</span></span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>      <span class="dv">S0:</span>         y_out <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>      <span class="dv">S1, S2, S3:</span> y_out <span class="op">=</span> <span class="op">~</span>x_in<span class="op">;</span></span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>    <span class="kw">endcase</span></span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a><span class="kw">endmodule</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><span class="lab-code-label">Test bench (clock, reset, and <code>x_in</code> waveforms)</span></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode verilog code-with-copy"><code class="sourceCode verilog"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ot">`timescale 1ns / 1ps</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="co">// Test bench for Mealy_Zero_Detector</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> t_Mealy_Zero_Detector<span class="op">;</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">wire</span> t_y_out<span class="op">;</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">reg</span>  t_x_in<span class="op">,</span> t_clock<span class="op">,</span> t_reset<span class="op">;</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  Mealy_Zero_Detector M0 <span class="op">(</span>t_y_out<span class="op">,</span> t_x_in<span class="op">,</span> t_clock<span class="op">,</span> t_reset<span class="op">);</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>  <span class="kw">initial</span> <span class="bn">#200</span> <span class="dt">$finish</span><span class="op">;</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>  <span class="kw">initial</span> <span class="kw">begin</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>    t_clock <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">forever</span> <span class="bn">#5</span> t_clock <span class="op">=</span> <span class="op">~</span>t_clock<span class="op">;</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>  <span class="kw">end</span></span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>  <span class="kw">initial</span> <span class="kw">fork</span></span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>    t_reset <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>    <span class="bn">#2</span>   t_reset <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>    <span class="bn">#87</span>  t_reset <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>    <span class="bn">#89</span>  t_reset <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>    <span class="bn">#10</span>  t_x_in <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>    <span class="bn">#30</span>  t_x_in <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a>    <span class="bn">#40</span>  t_x_in <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a>    <span class="bn">#50</span>  t_x_in <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a>    <span class="bn">#52</span>  t_x_in <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a>    <span class="bn">#54</span>  t_x_in <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a>    <span class="bn">#70</span>  t_x_in <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a>    <span class="bn">#80</span>  t_x_in <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a>    <span class="bn">#90</span>  t_x_in <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a>    <span class="bn">#100</span> t_x_in <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a>    <span class="bn">#120</span> t_x_in <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb17-33"><a href="#cb17-33" aria-hidden="true" tabindex="-1"></a>    <span class="bn">#160</span> t_x_in <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb17-34"><a href="#cb17-34" aria-hidden="true" tabindex="-1"></a>    <span class="bn">#170</span> t_x_in <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb17-35"><a href="#cb17-35" aria-hidden="true" tabindex="-1"></a>  <span class="kw">join</span></span>
+<span id="cb17-36"><a href="#cb17-36" aria-hidden="true" tabindex="-1"></a><span class="kw">endmodule</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>How the model works.</strong> The model has three <code>always</code> blocks that execute concurrently and communicate through shared variables. Figure 5.21 shows the general hardware organization of Mealy and Moore machines.</p>
+<div class="lab-figure lab-figure-md">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../figures/figure-5.21.png" class="img-fluid figure-img" alt="Two block diagrams, one for a Mealy machine and one for a Moore machine, each with a state register and combinational logic."></p>
+<figcaption><strong>Figure 5.21.</strong> Block diagrams of Mealy and Moore state machines</figcaption>
+</figure>
+</div>
+</div>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Block</th>
+<th style="text-align: left;">Role</th>
+<th style="text-align: center;">Assignment</th>
+<th style="text-align: left;">Hardware equivalent</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">1</td>
+<td style="text-align: left;"><strong>State register</strong>: resets the circuit to S0 = 00 and updates <code>state</code> on the positive clock edge</td>
+<td style="text-align: center;"><code>&lt;=</code></td>
+<td style="text-align: left;">D flip-flops holding the state</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2</td>
+<td style="text-align: left;"><strong>Next-state logic</strong>: gives <code>next_state</code> as a function of present state and input</td>
+<td style="text-align: center;"><code>=</code></td>
+<td style="text-align: left;">Combinational logic</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">3</td>
+<td style="text-align: left;"><strong>Output logic</strong>: gives <code>y_out</code> as a function of present state and input</td>
+<td style="text-align: center;"><code>=</code></td>
+<td style="text-align: left;">Combinational logic</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>In block 1, <code>state &lt;= next_state</code> executes <strong>only on a positive clock edge</strong>, so a change of <code>next_state</code> in block 2 reaches <code>state</code> only at the next clock edge. The value assigned is the value of <code>next_state</code> just before the edge.</li>
+<li>In block 2, the <code>case</code> statement implements the state transitions given by the annotated edges of the state diagram.</li>
+<li>Block 3 could be merged with block 2; it is a separate behavior only for clarity. Output <code>y_out</code> can change when <code>x_in</code> changes while the circuit is in any given state.</li>
+<li>The registers use the <strong>nonblocking</strong> operator because the flip-flops of a sequential machine are updated concurrently by a common clock. Blocks 2 and 3 describe <strong>level-sensitive</strong> combinational logic, so they use the <strong>blocking</strong> operator; their sensitivity lists include both the state and the input.</li>
+</ul>
+<div class="callout callout-style-simple callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Key Concept: Reset in the state register only
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The reset is associated with the <strong>first</strong> <code>always</code> block and is modeled as an <strong>active-low</strong> reset. Because it is part of the state-transition model, it does not have to be repeated in the combinational logic for the next state and the output. The result is a simpler, more readable description. This modeling style is commonly used by designers.</p>
+</div>
+</div>
+<p><strong>Summary of the machine’s behavior.</strong> At every positive clock edge, if reset is not asserted, block 1 updates the state. The change in <code>state</code> is detected by the sensitivity list of block 2, which updates <code>next_state</code> (used by block 1 at the following clock edge). Block 3 also detects the change in <code>state</code> and updates the output. Blocks 2 and 3 also respond to changes in <code>x_in</code>.</p>
+<p><strong>Test bench.</strong> The test bench provides waveforms for the model, with the results in Figure 5.22. The waveform description uses <code>fork</code> … <code>join</code>: statements inside the block execute <strong>in parallel</strong>, so the time delays are all relative to the common reference t = 0. This is usually more convenient than <code>begin</code> … <code>end</code> for describing waveforms. The reset waveform is triggered “on the fly” to show that the machine recovers from an unexpected reset in any state.</p>
+<div class="lab-figure lab-figure-md">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../figures/figure-5.22.png" class="img-fluid figure-img" alt="Timing diagram with signals t_clock, t_reset, t_x_in, state[1:0], next_state[1:0], and t_y_out over about 100 time units. Annotations mark a valid Mealy output and a Mealy glitch on t_y_out."></p>
+<figcaption><strong>Figure 5.22.</strong> Simulation output of <code>Mealy_Zero_Detector</code></figcaption>
+</figure>
+</div>
+</div>
+<p>Notice that <code>t_y_out</code> responds to changes in <strong>both the state and the input</strong> and has a <strong>glitch</strong> (a transient logic value).</p>
+</section>
+<section id="moore-model" class="level3">
+<h3 class="anchored" data-anchor-id="moore-model">Moore model</h3>
+<p>A Moore FSM can be modeled by HDL Example 5.6. It shows that the state transitions of a clocked sequential machine can be described with <strong>only one <code>always</code> block</strong>.</p>
+<div class="lab-example">
+<div class="lab-example-head">
+<p><span class="lab-example-id">HDL Example 5.6</span> Moore model FSM</p>
+</div>
+<p>Models the state transitions with one clocked <code>always</code> block and a <code>case</code> statement; the output is a continuous assignment of the state.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode verilog code-with-copy"><code class="sourceCode verilog"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">// HDL Example 5.6</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="co">// Moore model FSM (see Fig. 5.19)</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> Moore_Model_Fig_5_19 <span class="op">(</span><span class="dt">output</span> <span class="op">[</span><span class="dv">1</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span> y_out<span class="op">,</span> <span class="dt">input</span> x_in<span class="op">,</span> clock<span class="op">,</span> reset<span class="op">);</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">reg</span> <span class="op">[</span><span class="dv">1</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span> state<span class="op">;</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">parameter</span> S0 <span class="op">=</span> <span class="bn">2'b00</span><span class="op">,</span> S1 <span class="op">=</span> <span class="bn">2'b01</span><span class="op">,</span> S2 <span class="op">=</span> <span class="bn">2'b10</span><span class="op">,</span> S3 <span class="op">=</span> <span class="bn">2'b11</span><span class="op">;</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">always</span> <span class="op">@(</span><span class="kw">posedge</span> clock<span class="op">,</span> <span class="kw">negedge</span> reset<span class="op">)</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">if</span> <span class="op">(</span>reset <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> state <span class="op">&lt;=</span> S0<span class="op">;</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">else</span> <span class="kw">case</span> <span class="op">(</span>state<span class="op">)</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>      <span class="dv">S0:</span> <span class="kw">if</span> <span class="op">(~</span>x_in<span class="op">)</span> state <span class="op">&lt;=</span> S1<span class="op">;</span> <span class="kw">else</span> state <span class="op">&lt;=</span> S0<span class="op">;</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>      <span class="dv">S1:</span> <span class="kw">if</span> <span class="op">(</span>x_in<span class="op">)</span>  state <span class="op">&lt;=</span> S2<span class="op">;</span> <span class="kw">else</span> state <span class="op">&lt;=</span> S3<span class="op">;</span></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>      <span class="dv">S2:</span> <span class="kw">if</span> <span class="op">(~</span>x_in<span class="op">)</span> state <span class="op">&lt;=</span> S3<span class="op">;</span> <span class="kw">else</span> state <span class="op">&lt;=</span> S2<span class="op">;</span></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>      <span class="dv">S3:</span> <span class="kw">if</span> <span class="op">(~</span>x_in<span class="op">)</span> state <span class="op">&lt;=</span> S0<span class="op">;</span> <span class="kw">else</span> state <span class="op">&lt;=</span> S3<span class="op">;</span></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">endcase</span></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>  <span class="kw">assign</span> y_out <span class="op">=</span> state<span class="op">;</span>   <span class="co">// Output of flip-flops</span></span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a><span class="kw">endmodule</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ul>
+<li>The present state is the variable <code>state</code>. Transitions are triggered by the positive clock edge according to the conditions in the <code>case</code> statement.</li>
+<li>The combinational logic that implicitly determines the next state is included in the <strong>nonblocking</strong> assignment to <code>state</code>.</li>
+<li>The output is <strong>independent of the input</strong> and is taken directly from the flip-flop outputs. The two-bit output <code>y_out</code> is a continuous (<code>assign</code>) statement equal to the present-state vector.</li>
+</ul>
+<p>Figure 5.23 shows simulation results. The output of the Moore machine <strong>has no glitches</strong>.</p>
+<div class="lab-figure lab-figure-md">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../figures/figure-5.23.png" class="img-fluid figure-img" alt="Timing diagram with signals t_clock, t_reset, t_x_in, state[1:0], and t_y_out[1:0]. The t_y_out values follow the state values exactly, with no glitches."></p>
+<figcaption><strong>Figure 5.23.</strong> Simulation output of HDL Example 5.6</figcaption>
+</figure>
+</div>
+</div>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: left;">Mealy machine (Example 5.5)</th>
+<th style="text-align: left;">Moore machine (Example 5.6)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Output depends on</td>
+<td style="text-align: left;">Present state <strong>and</strong> input</td>
+<td style="text-align: left;">Present state only</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>always</code> blocks in the example</td>
+<td style="text-align: left;">Three</td>
+<td style="text-align: left;">One</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Output in the example</td>
+<td style="text-align: left;">Assigned in its own <code>always</code> block</td>
+<td style="text-align: left;">Continuous assignment of the state vector</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Glitches in the output</td>
+<td style="text-align: left;">Can occur</td>
+<td style="text-align: left;">None</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="structural-description-of-clocked-sequential-circuits" class="level2">
+<h2 class="anchored" data-anchor-id="structural-description-of-clocked-sequential-circuits">3.4 Structural Description of Clocked Sequential Circuits</h2>
+<p>Combinational logic can be described in Verilog by a connection of gates (primitives and UDPs), by dataflow statements (continuous assignments), or by level-sensitive cyclic behaviors (<code>always</code> blocks).</p>
+<p>Sequential circuits are composed of combinational logic and flip-flops. Their HDL models use sequential UDPs and behavioral statements (edge-sensitive cyclic behaviors) to describe the flip-flops. One way to describe a sequential circuit <strong>combines dataflow and behavioral statements</strong>:</p>
+<ul>
+<li>The flip-flops are described with <code>always</code> statements.</li>
+<li>The combinational part is described with <code>assign</code> statements and Boolean equations.</li>
+<li>Separate modules are combined into a <strong>structural model</strong> by instantiation within a module.</li>
+</ul>
+<section id="two-models-of-the-same-machine" class="level3">
+<h3 class="anchored" data-anchor-id="two-models-of-the-same-machine">Two models of the same machine</h3>
+<p>HDL Example 5.7 describes a two-bit binary counter, controlled by input <code>x_in</code>, in two ways so you can compare them:</p>
+<ol type="1">
+<li><strong>Behavioral (state-diagram based):</strong> <code>Moore_Model_Fig_5_20</code>, a direct model of the counter’s state diagram.</li>
+<li><strong>Structural:</strong> <code>Moore_Model_STR_Fig_5_20</code>, which represents the structure shown in Figure 5.20 with two modules: the circuit itself and the T flip-flop it uses.</li>
+</ol>
+<p>The T flip-flop can be modeled in two ways:</p>
+<ul>
+<li>The first model states that at every clock tick the output <strong>toggles if the toggle input is asserted</strong>. It is attractive because the reader does not need to remember the characteristic equation.</li>
+<li>The second model uses the characteristic equation, Q(t + 1) = Q ⊕ T.</li>
+</ul>
+<p>The two models are interchangeable and <strong>synthesize to the same hardware circuit</strong>.</p>
+<div class="lab-figure lab-figure-md">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../figures/figure-5.20.png" class="img-fluid figure-img" alt="Logic diagram of a two-bit binary counter built from two T flip-flops and gates."></p>
+<figcaption><strong>Figure 5.20.</strong> Sequential circuit with T flip-flops (Binary Counter)</figcaption>
+</figure>
+</div>
+</div>
+<div class="lab-example">
+<div class="lab-example-head">
+<p><span class="lab-example-id">HDL Example 5.7</span> State-diagram-based and structural models of a two-bit counter, with test bench</p>
+</div>
+<p>Five code blocks: the behavioral model, the structural model, two T flip-flop models, and a test bench that compares both machines.</p>
+<p><span class="lab-code-label">Behavioral model <code>Moore_Model_Fig_5_20</code> (Verilog 2001, 2005)</span></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode verilog code-with-copy"><code class="sourceCode verilog"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co">// HDL Example 5.7</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="co">// State-diagram-based model (V2001, 2005)</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> Moore_Model_Fig_5_20 <span class="op">(</span><span class="dt">output</span> y_out<span class="op">,</span> <span class="dt">input</span> x_in<span class="op">,</span> clock<span class="op">,</span> reset<span class="op">);</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">reg</span> <span class="op">[</span><span class="dv">1</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span> state<span class="op">;</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">parameter</span> S0 <span class="op">=</span> <span class="bn">2'b00</span><span class="op">,</span> S1 <span class="op">=</span> <span class="bn">2'b01</span><span class="op">,</span> S2 <span class="op">=</span> <span class="bn">2'b10</span><span class="op">,</span> S3 <span class="op">=</span> <span class="bn">2'b11</span><span class="op">;</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">always</span> <span class="op">@(</span><span class="kw">posedge</span> clock<span class="op">,</span> <span class="kw">negedge</span> reset<span class="op">)</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">if</span> <span class="op">(</span>reset <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> state <span class="op">&lt;=</span> S0<span class="op">;</span>   <span class="co">// Initialize to state S0</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">else</span> <span class="kw">case</span> <span class="op">(</span>state<span class="op">)</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>      <span class="dv">S0:</span> <span class="kw">if</span> <span class="op">(</span>x_in<span class="op">)</span> state <span class="op">&lt;=</span> S1<span class="op">;</span> <span class="kw">else</span> state <span class="op">&lt;=</span> S0<span class="op">;</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>      <span class="dv">S1:</span> <span class="kw">if</span> <span class="op">(</span>x_in<span class="op">)</span> state <span class="op">&lt;=</span> S2<span class="op">;</span> <span class="kw">else</span> state <span class="op">&lt;=</span> S1<span class="op">;</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>      <span class="dv">S2:</span> <span class="kw">if</span> <span class="op">(</span>x_in<span class="op">)</span> state <span class="op">&lt;=</span> S3<span class="op">;</span> <span class="kw">else</span> state <span class="op">&lt;=</span> S2<span class="op">;</span></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>      <span class="dv">S3:</span> <span class="kw">if</span> <span class="op">(</span>x_in<span class="op">)</span> state <span class="op">&lt;=</span> S0<span class="op">;</span> <span class="kw">else</span> state <span class="op">&lt;=</span> S3<span class="op">;</span></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">endcase</span></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>  <span class="kw">assign</span> y_out <span class="op">=</span> <span class="op">(</span>state <span class="op">==</span> S3<span class="op">);</span></span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a><span class="kw">endmodule</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><span class="lab-code-label">Structural model <code>Moore_Model_STR_Fig_5_20</code></span></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode verilog code-with-copy"><code class="sourceCode verilog"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Structural model</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> Moore_Model_STR_Fig_5_20 <span class="op">(</span><span class="dt">output</span> y_out<span class="op">,</span> A<span class="op">,</span> B<span class="op">,</span> <span class="dt">input</span> x_in<span class="op">,</span> clock<span class="op">,</span> reset<span class="op">);</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">wire</span> TA<span class="op">,</span> TB<span class="op">;</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Flip-flop input equations</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">assign</span> TA <span class="op">=</span> x_in <span class="op">&amp;</span> B<span class="op">;</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">assign</span> TB <span class="op">=</span> x_in<span class="op">;</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Output equation</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>  <span class="kw">assign</span> y_out <span class="op">=</span> A <span class="op">&amp;</span> B<span class="op">;</span></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Instantiate toggle flip-flops (A and B are the flip-flop outputs)</span></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>  Toggle_flip_flop M_A <span class="op">(</span>A<span class="op">,</span> TA<span class="op">,</span> clock<span class="op">,</span> reset<span class="op">);</span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>  Toggle_flip_flop M_B <span class="op">(</span>B<span class="op">,</span> TB<span class="op">,</span> clock<span class="op">,</span> reset<span class="op">);</span></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a><span class="kw">endmodule</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><span class="lab-code-label">T flip-flop module <code>Toggle_flip_flop</code> (toggles when T is asserted)</span></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode verilog code-with-copy"><code class="sourceCode verilog"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> Toggle_flip_flop <span class="op">(</span>Q<span class="op">,</span> T<span class="op">,</span> CLK<span class="op">,</span> RST_b<span class="op">);</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">output</span> Q<span class="op">;</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">input</span>  T<span class="op">,</span> CLK<span class="op">,</span> RST_b<span class="op">;</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">reg</span>    Q<span class="op">;</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">always</span> <span class="op">@(</span><span class="kw">posedge</span> CLK<span class="op">,</span> <span class="kw">negedge</span> RST_b<span class="op">)</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">if</span> <span class="op">(</span>RST_b <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> Q <span class="op">&lt;=</span> <span class="bn">1'b0</span><span class="op">;</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">else</span> <span class="kw">if</span> <span class="op">(</span>T<span class="op">)</span>     Q <span class="op">&lt;=</span> <span class="op">~</span>Q<span class="op">;</span></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="kw">endmodule</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><span class="lab-code-label">Alternative T flip-flop using the characteristic equation</span></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode verilog code-with-copy"><code class="sourceCode verilog"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Alternative model using characteristic equation, Q(t+1) = Q ^ T</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="co">// (use in place of the model above; do not compile both)</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> Toggle_flip_flop <span class="op">(</span>Q<span class="op">,</span> T<span class="op">,</span> CLK<span class="op">,</span> RST_b<span class="op">);</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">output</span> Q<span class="op">;</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">input</span>  T<span class="op">,</span> CLK<span class="op">,</span> RST_b<span class="op">;</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">reg</span>    Q<span class="op">;</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">always</span> <span class="op">@(</span><span class="kw">posedge</span> CLK<span class="op">,</span> <span class="kw">negedge</span> RST_b<span class="op">)</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">if</span> <span class="op">(</span>RST_b <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> Q <span class="op">&lt;=</span> <span class="bn">1'b0</span><span class="op">;</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">else</span>            Q <span class="op">&lt;=</span> Q <span class="op">^</span> T<span class="op">;</span></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a><span class="kw">endmodule</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><span class="lab-code-label">Test bench (stimulus module for both models)</span></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode verilog code-with-copy"><code class="sourceCode verilog"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="ot">`timescale 1ns / 1ps</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="co">// Test bench for Moore_Model_Fig_5_20</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> t_Moore_Model_Fig_5_20<span class="op">;</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">wire</span> t_y_out_1<span class="op">,</span> t_y_out_2<span class="op">,</span> A<span class="op">,</span> B<span class="op">;</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">reg</span>  t_x_in<span class="op">,</span> t_clock<span class="op">,</span> t_reset<span class="op">;</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>  <span class="co">// State-diagram-based model</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>  Moore_Model_Fig_5_20     M1 <span class="op">(</span>t_y_out_1<span class="op">,</span> t_x_in<span class="op">,</span> t_clock<span class="op">,</span> t_reset<span class="op">);</span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Structural model</span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>  Moore_Model_STR_Fig_5_20 M2 <span class="op">(</span>t_y_out_2<span class="op">,</span> A<span class="op">,</span> B<span class="op">,</span> t_x_in<span class="op">,</span> t_clock<span class="op">,</span> t_reset<span class="op">);</span></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>  <span class="kw">initial</span> <span class="bn">#200</span> <span class="dt">$finish</span><span class="op">;</span></span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Clock and reset</span></span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>  <span class="kw">initial</span> <span class="kw">begin</span></span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>    t_reset <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>    t_clock <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a>    <span class="bn">#5</span> t_reset <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a>    <span class="kw">repeat</span> <span class="op">(</span><span class="dv">16</span><span class="op">)</span> <span class="bn">#5</span> t_clock <span class="op">=</span> <span class="op">~</span>t_clock<span class="op">;</span></span>
+<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a>  <span class="kw">end</span></span>
+<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-23"><a href="#cb23-23" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Input signal</span></span>
+<span id="cb23-24"><a href="#cb23-24" aria-hidden="true" tabindex="-1"></a>  <span class="kw">initial</span> <span class="kw">begin</span></span>
+<span id="cb23-25"><a href="#cb23-25" aria-hidden="true" tabindex="-1"></a>    t_x_in <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb23-26"><a href="#cb23-26" aria-hidden="true" tabindex="-1"></a>    <span class="bn">#15</span> t_x_in <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb23-27"><a href="#cb23-27" aria-hidden="true" tabindex="-1"></a>    <span class="kw">repeat</span> <span class="op">(</span><span class="dv">8</span><span class="op">)</span> <span class="bn">#10</span> t_x_in <span class="op">=</span> <span class="op">~</span>t_x_in<span class="op">;</span></span>
+<span id="cb23-28"><a href="#cb23-28" aria-hidden="true" tabindex="-1"></a>  <span class="kw">end</span></span>
+<span id="cb23-29"><a href="#cb23-29" aria-hidden="true" tabindex="-1"></a><span class="kw">endmodule</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="how-the-counter-works" class="level3">
+<h3 class="anchored" data-anchor-id="how-the-counter-works">How the counter works</h3>
+<ul>
+<li>Flip-flops <strong>A</strong> and <strong>B</strong> are included as outputs so their operation can be checked.</li>
+<li>The output <code>y_out</code> is enabled when the count reaches binary 11.</li>
+<li>The flip-flop input equations and the output equation are evaluated with continuous assignments. The instantiated T flip-flops use <code>TA</code> and <code>TB</code> as defined by the input equations.</li>
+<li>The T flip-flop module has an active-low reset input that resets the flip-flop to 0.</li>
+</ul>
+<div class="callout callout-style-simple callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Technical Detail: Input and output equations of the counter
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>In the structural model, the flip-flop inputs and output are TA = x_in AND B, TB = x_in, and y_out = A AND B.</p>
+</div>
+</div>
+</section>
+<section id="test-bench-and-results" class="level3">
+<h3 class="anchored" data-anchor-id="test-bench-and-results">Test bench and results</h3>
+<p>The test bench includes both models of the machine. The stimulus module gives the <strong>same inputs to both circuits</strong> so their outputs can be displayed together.</p>
+<ul>
+<li>The first <code>initial</code> block provides <strong>eight clock cycles</strong> with a period of 10 ns.</li>
+<li>The second <code>initial</code> block toggles input <code>x_in</code> at the <strong>negative edge</strong> of the clock.</li>
+</ul>
+<p>Figure 5.24 shows the simulation result.</p>
+<div class="lab-figure lab-figure-md">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../figures/figure-5.24.png" class="img-fluid figure-img" alt="Timing diagram with signals t_clock, t_reset, t_x_in, t_y_out_1, t_y_out_2, A, and B. Signals A and B step through the binary count while t_y_out_1 and t_y_out_2 rise together when both A and B are 1."></p>
+<figcaption><strong>Figure 5.24.</strong> Simulation output of HDL Example 5.7</figcaption>
+</figure>
+</div>
+</div>
+<ul>
+<li>The pair (A, B) goes through the binary sequence <strong>00, 01, 10, 11</strong> and back to 00.</li>
+<li>The count changes on a <strong>positive clock edge</strong>, provided <code>x_in = 1</code>. If <code>x_in = 0</code>, the count does not change.</li>
+<li><code>y_out</code> equals 1 when both A and B are 1.</li>
+</ul>
+<p>This verifies the main functionality of the circuit, but <strong>not recovery from an unexpected reset event</strong>.</p>
+</section>
+</section>
+<section id="chapter-summary" class="level2">
+<h2 class="anchored" data-anchor-id="chapter-summary">Chapter Summary</h2>
+<ul>
+<li><code>initial</code> runs once and is used for test-bench stimulus; <code>always</code> repeats and describes circuit behavior.</li>
+<li>Use <code>#</code> for delays and <code>@</code> (with <code>posedge</code>, <code>negedge</code>, or level changes) for event control.</li>
+<li>Use <strong>blocking</strong> (<code>=</code>) for combinational logic and <strong>nonblocking</strong> (<code>&lt;=</code>) for edge-sensitive and latched behavior.</li>
+<li>Write an asynchronous reset so that the asynchronous tests come first in the <code>if</code> chain and the last <code>else</code> is the clock event; always include a reset.</li>
+<li>A Mealy output depends on state and input and can glitch; a Moore output depends on state only.</li>
+<li>A sequential circuit can be modeled behaviorally or structurally (T flip-flops plus combinational equations). Both versions synthesize to the same hardware.</li>
+</ul>
+
+
+</section>
+
+<a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a></main> <!-- /main -->
+<script>
+
+/* Keeps the back-to-top button hidden when the page is scrolled all the way to the bottom
+
+   (scroll bounce and late layout changes there can look like an upward scroll). */
+
+(function () {
+
+  function init() {
+
+    var btn = document.getElementById("quarto-back-to-top");
+
+    if (!btn) return;
+
+    function guard() {
+
+      requestAnimationFrame(function () {
+
+        var atBottom = window.innerHeight + window.pageYOffset >= document.documentElement.scrollHeight - 4;
+
+        if (atBottom) btn.style.display = "none";
+
+      });
+
+    }
+
+    window.addEventListener("scroll", guard, { passive: true });
+
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+
+  else init();
+
+})();
+
+</script>
+
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const toggle = window.document.createElement('button');
+      toggle.type = "button";
+      toggle.setAttribute("role", "switch");
+      toggle.setAttribute("aria-checked", "false");
+      toggle.classList.add('top-right');
+      toggle.classList.add('quarto-color-scheme-toggle');
+      toggle.setAttribute("aria-label", "Toggle dark mode");
+      toggle.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      toggle.appendChild(i);
+      // Put the toggle in a landmark of its own, so that landmark navigation
+      // can reach it.
+      //
+      // The container is always a fresh direct child of body, and the toggle is
+      // never moved into page furniture that the theme or the author controls.
+      // The toggle is positioned against the page, so any ancestor that
+      // establishes a containing block captures it: a positioned element or a
+      // grid for position: absolute, and transform, filter, will-change or
+      // contain for position: fixed. A direct child of body has none of these
+      // to inherit, and the shift when one appears is silent and visual.
+      //
+      // ARIA says a document should have at most one banner, and axe reports a
+      // duplicate whether or not the banners carry distinct labels. So use a
+      // header when the page has no banner yet, and a named region otherwise.
+      //
+      // A header is a banner wherever it sits, unless it is inside sectioning
+      // content, so this cannot just look at the children of body: a custom
+      // page layout wraps the title block header in a plain div. An explicit
+      // role="banner" always counts.
+      const sectioning = 'article, aside, main, nav, section, [role="article"], [role="complementary"], [role="main"], [role="navigation"], [role="region"]';
+      const hasBanner = Array.from(
+        window.document.querySelectorAll('header:not([role]), [role="banner"]')
+      ).some(function(el) {
+        return el.hasAttribute("role") || el.closest(sectioning) === null;
+      });
+      const container = window.document.createElement(hasBanner ? "div" : "header");
+      if (hasBanner) {
+        container.setAttribute("role", "region");
+        container.setAttribute("aria-label", "Toggle dark mode");
+      }
+      container.classList.add('quarto-color-scheme-toggle-container');
+      container.appendChild(toggle);
+      window.document.body.appendChild(container);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/vesalbargi\.github\.io\/verilog-hdl-handbook\/");
+      const newWindowLabel = "(opens in a new tab)";
+      const newWindowNoteId = "quarto-ext-newwindow-label";
+      // Links reference one hidden label through aria-describedby, so the
+      // announcement never changes their accessible name.
+      var describeNewWindow = (link) => {
+        if (!window.document.getElementById(newWindowNoteId)) {
+          var newWindowNote = window.document.createElement("span");
+          newWindowNote.id = newWindowNoteId;
+          newWindowNote.hidden = true;
+          newWindowNote.textContent = newWindowLabel;
+          window.document.body.appendChild(newWindowNote);
+        }
+        var describedBy = (link.getAttribute("aria-describedby") || "").split(/\s+/).filter(Boolean);
+        if (!describedBy.includes(newWindowNoteId)) {
+          describedBy.push(newWindowNoteId);
+          link.setAttribute("aria-describedby", describedBy.join(" "));
+        }
+      }
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+      window.quartoDecorateExternalLinks = function (root) {
+     var links = (root || window.document).querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+            describeNewWindow(link);
+          if (!link.classList.contains('no-external-icon')) {
+          }
+        }
+      }
+      };
+      window.quartoDecorateExternalLinks(window.document);
+    // Esc closes the popup (WCAG 1.4.13) and focus leaving both trigger and
+    // popup closes it (WCAG 2.4.11); tippy handles neither for interactive popups.
+    const hideOnEscAndFocusOut = {
+      name: 'hideOnEscAndFocusOut',
+      defaultValue: true,
+      fn(instance) {
+        const dismiss = () => {
+          // A show scheduled by the trigger delay would otherwise reopen it
+          instance.clearDelayTimeouts();
+          instance.hide();
+        };
+        const onKeyDown = (event) => {
+          if (event.key !== 'Escape') {
+            return;
+          }
+          // Keep Esc from also reaching page handlers (e.g. reveal.js overview),
+          // except an open reveal.js slide menu, which Esc should close too.
+          // The menu handles keys only when its keyboard option is on.
+          const menuHandlesEsc = window.Reveal?.getPlugin?.('menu')?.isOpen() &&
+            window.Reveal.getConfig().menu?.keyboard !== false;
+          if (!menuHandlesEsc) {
+            event.stopPropagation();
+          }
+          if (instance.popper.contains(window.document.activeElement)) {
+            // Disabled while refocusing so the focus trigger does not reopen it
+            instance.disable();
+            instance.reference.focus();
+            instance.enable();
+          }
+          dismiss();
+        };
+        const onFocusOut = (event) => {
+          const target = event.relatedTarget;
+          if (target && !instance.reference.contains(target) &&
+              !instance.popper.contains(target)) {
+            dismiss();
+          }
+        };
+        // On the trigger too: a click trigger (code-annotations: select) has no
+        // blur handling. Attached for the instance's lifetime so leaving the
+        // trigger also cancels a show still pending on the trigger delay.
+        instance.reference.addEventListener('focusout', onFocusOut);
+        return {
+          onShow() {
+            window.document.addEventListener('keydown', onKeyDown, true);
+            instance.popper.addEventListener('focusout', onFocusOut);
+          },
+          onHide() {
+            window.document.removeEventListener('keydown', onKeyDown, true);
+            instance.popper.removeEventListener('focusout', onFocusOut);
+          },
+          onDestroy() {
+            instance.reference.removeEventListener('focusout', onFocusOut);
+          },
+        };
+      },
+    };
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+        plugins: [hideOnEscAndFocusOut],
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          // Each band is positioned against its own containing block, which is
+          // not the offsetParent of the lines, so place it from client rects.
+          const placeBand = (band, firstEl, lastEl, codeBlock) => {
+            const container = band.offsetParent;
+            if (container === null) {
+              return;
+            }
+            const containerRect = container.getBoundingClientRect();
+            // Reveal.js scales slides with a transform, so convert client
+            // pixels back to the CSS pixels of the container.
+            const scale = containerRect.height / container.offsetHeight || 1;
+            const firstRect = firstEl.getBoundingClientRect();
+            const lastRect = lastEl.getBoundingClientRect();
+            const top = (firstRect.top - containerRect.top) / scale - container.clientTop + container.scrollTop;
+            const height = (lastRect.bottom - firstRect.top) / scale;
+            band.style.top = top - 2 + "px";
+            band.style.height = height + 4 + "px";
+            if (codeBlock) {
+              // Without the copy button wrapper, the containing block is wider
+              // than the code block, so span the code block explicitly.
+              const blockRect = codeBlock.getBoundingClientRect();
+              band.style.left = (blockRect.left - containerRect.left) / scale - container.clientLeft + container.scrollLeft + "px";
+              band.style.width = blockRect.width / scale + "px";
+            }
+          };
+          if (lineIds.length > 0) {
+            const el = window.document.getElementById(lineIds[0]);
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const parent = el.parentElement.parentElement;
+            // cook up a div (if necessary) and position it
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            placeBand(div, el, lastEl, parent.closest("div.sourceCode") || parent);
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            placeBand(gutterDiv, el, lastEl);
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+  <script type="application/javascript">
+  window.quartoScrollableRegionsLabels = {"code":"Scrollable code","output":"Scrollable output"};
+  </script>
+<nav class="page-navigation" aria-label="Page">
+  <div class="nav-page nav-page-previous">
+      <a href="../chapters/02-combinational-circuit-models.html" class="pagination-link" aria-label="Chapter 2">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Chapter 2</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>Computer Architecture Laboratory | LAB3114</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+<script src="../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

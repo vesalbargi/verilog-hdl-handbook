@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://vesalbargi.github.io/verilog-hdl-handbook/chapters/03-sequential-circuit-models.html</loc>
+    <lastmod>2026-11-24T00:18:26.214Z</lastmod>
+  </url>
+  <url>
+    <loc>https://vesalbargi.github.io/verilog-hdl-handbook/chapters/01-hardware-description-language.html</loc>
+    <lastmod>2026-11-24T00:18:26.211Z</lastmod>
+  </url>
+  <url>
+    <loc>https://vesalbargi.github.io/verilog-hdl-handbook/index.html</loc>
+    <lastmod>2026-11-24T00:18:26.243Z</lastmod>
+  </url>
+  <url>
+    <loc>https://vesalbargi.github.io/verilog-hdl-handbook/chapters/02-combinational-circuit-models.html</loc>
+    <lastmod>2026-11-24T00:18:26.213Z</lastmod>
+  </url>
+</urlset>
